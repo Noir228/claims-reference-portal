@@ -44,6 +44,7 @@
           <p id="selectedTitle">Select a reference</p>
         </div>
         <div class="top-actions">
+          <span id="selectedPdx" class="pdx-display hidden" aria-label="Principal diagnosis">PDx <strong></strong></span>
           <span id="connectionStatus" class="status-badge">Connecting...</span>
         </div>
       </header>
@@ -158,6 +159,12 @@
               <label>Code<input id="entryCode" required maxlength="50" placeholder="Enter code"></label>
               <label>Title<input id="entryTitle" required maxlength="160" placeholder="Enter reference title"></label>
             </div>
+
+            <label class="pdx-admin-field">
+              PDx
+              <span class="muted">Optional principal diagnosis code</span>
+              <input id="entryPdx" maxlength="100" placeholder="Enter PDx code">
+            </label>
 
             <div class="notes-admin-field">
               <label class="notes-admin-label">
