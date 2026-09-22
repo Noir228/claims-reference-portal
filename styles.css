@@ -143,3 +143,12 @@ form input:focus{border-color:#57bfdc;box-shadow:0 0 0 3px rgba(8,167,223,.10)}
   .form-actions{grid-template-columns:1fr 1fr}
   .form-actions span{display:none}
 }
+
+.document-type-manager{margin-top:18px;padding-top:16px;border-top:1px solid var(--border,#d8e3e8)}
+.document-type-add{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.document-type-add input{min-width:0;flex:1}
+.document-type-list{display:flex;flex-direction:column;gap:6px;max-height:230px;overflow:auto}
+.document-type-admin-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid var(--border,#d8e3e8);border-radius:9px;background:#fff;font-size:13px}
+.document-type-actions{display:flex;gap:5px}
+.document-type-empty{padding:8px 2px;font-size:12px}
+.document-type-admin-row .danger-btn.compact{padding:6px 8px}
