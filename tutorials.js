@@ -30,10 +30,10 @@ function renderAll(){
 
 function selectTutorial(id){selectedTutorial=tutorials.find(v=>String(v.id)===String(id))||null;if(selectedTutorial)updatePlayer();else showEmpty();renderListActive();}
 function renderListActive(){document.querySelectorAll(".tutorial-button").forEach(b=>b.classList.toggle("active",String(b.dataset.id)===String(selectedTutorial?.id)))}
-function showEmpty(){selectedTutorial=null;$("tutorialVideo").pause();$("tutorialVideo").removeAttribute("src");$("tutorialVideo").load();$("tutorialVideo").classList.add("hidden");$("tutorialPlaceholder").classList.remove("hidden");$("tutorialCurrentTitle").textContent="Select a tutorial";$("tutorialFileName").textContent="Choose a tutorial to begin.";renderListActive()}
+function showEmpty(){selectedTutorial=null;$("tutorialVideo").pause();$("tutorialVideo").removeAttribute("src");$("tutorialVideo").load();$("tutorialVideo").classList.add("hidden");$("tutorialPlaceholder").classList.remove("hidden");$("tutorialPageTitle").textContent="Video Tutorials";$("tutorialFileName").textContent="Choose a tutorial to begin.";renderListActive()}
 function updatePlayer(){
   if(!selectedTutorial)return;
-  $("tutorialCurrentTitle").textContent=selectedTutorial.title;
+  $("tutorialPageTitle").textContent=selectedTutorial.title;
   $("tutorialFileName").textContent=selectedTutorial.file_name||"Video tutorial";
   const video=$("tutorialVideo");
   video.src=selectedTutorial.url;video.classList.remove("hidden");$("tutorialPlaceholder").classList.add("hidden");video.load();renderListActive();
