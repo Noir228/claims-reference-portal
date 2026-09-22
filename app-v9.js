@@ -403,9 +403,11 @@ function addStandardNewbornAttachments(){
     if(!existing.includes(label.toUpperCase())) addAttachmentRow({label,type});
   }
 }
-$("standardNewbornAttachments").onclick=addStandardNewbornAttachments;
-// The editor starts blank; the predefined newborn shortcut is intentionally hidden.
-$("standardNewbornAttachments").classList.add("hidden");
+const standardNewbornButton = $("standardNewbornAttachments");
+if (standardNewbornButton) {
+  standardNewbornButton.onclick = addStandardNewbornAttachments;
+  standardNewbornButton.classList.add("hidden");
+}
 
 $("entryForm").onsubmit=async e=>{
   e.preventDefault();
