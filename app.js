@@ -171,9 +171,11 @@ async function renderPdfPage(pageNum, canvas, mode="main"){
   const requestedZoom = mode === "magnifier" ? zoom : 1;
   const cssScale = Math.max(0.25, fit * requestedZoom);
   const dpr=window.devicePixelRatio || 1;
-  // Render the PDF at the zoomed resolution instead of enlarging a low-resolution canvas.
-  // This keeps text and fine details sharp when the magnifier is zoomed in.
-  const renderScale = cssScale * dpr;
+  // The magnifier gets its own high-resolution render buffer. PDF pages are vector
+  // content, so rendering at several times the display resolution preserves fine text
+  // and lines instead of relying on browser/canvas enlargement.
+  const qualityMultiplier = mode === "magnifier" ? 3 : 1;
+  const renderScale = cssScale * dpr * qualityMultiplier;
   const renderViewport=page.getViewport({scale:renderScale});
   const displayViewport=page.getViewport({scale:cssScale});
   canvas.width=Math.ceil(renderViewport.width);
@@ -214,7 +216,6 @@ async function openMagnifier(){
   if(pdfDocument){
     $("magnifierCanvas").classList.remove("hidden");
     await renderPdfPage(currentPage,$("magnifierCanvas"),"magnifier");
-    applyZoom();
   } else if(selectedAttachment.kind==="image" || /\.(png|jpe?g|gif|webp)$/i.test(selectedAttachment.url)){
     $("magnifierImage").src=selectedAttachment.url;
     $("magnifierImage").classList.remove("hidden");
