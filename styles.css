@@ -41,11 +41,12 @@ button{cursor:pointer}
 .topbar{max-width:1380px;margin:0 auto 15px;background:linear-gradient(120deg,#b9e9f3,#8fd5e6);border-radius:18px;padding:18px 28px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 8px 25px rgba(17,95,115,.09)}
 .eyebrow{font-size:10px;font-weight:800;letter-spacing:.12em;color:#61717a}
 .topbar .eyebrow{color:#27788b}
+.code-pdx-row{display:flex;align-items:center;gap:18px;min-width:0}
 .topbar h1{margin:1px 0 0;font-size:50px;line-height:1;font-weight:800;letter-spacing:-.04em}
+.pdx-display{display:inline-flex;align-items:baseline;gap:7px;min-height:0;padding:0;border:0;border-radius:0;background:transparent;color:#27788b;font-size:14px;font-weight:800;letter-spacing:.02em;white-space:nowrap}
+.pdx-display strong{color:#111827;font-size:25px;font-weight:800;letter-spacing:-.02em}
 .topbar p{margin:5px 0 0;font-size:18px;font-weight:700;letter-spacing:.05em}
 .status-badge{background:#e9fff2;color:#087443;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:700}
-.pdx-display{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:6px 10px;border:1px solid rgba(39,120,139,.18);border-radius:10px;background:rgba(255,255,255,.42);color:#4d6b74;font-size:10px;font-weight:800;letter-spacing:.03em}
-.pdx-display strong{color:#1e5969;font-size:11px;font-weight:800}
 .top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
 .content-grid{max-width:1380px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:12px}
@@ -153,7 +154,7 @@ form input:focus{border-color:#57bfdc;box-shadow:0 0 0 3px rgba(8,167,223,.10)}
   .entry-list{display:flex;overflow:auto;gap:7px;padding-bottom:5px}
   .entry-button{min-width:125px;margin:0}
   .main{padding:10px}
-  .topbar{padding:15px 18px}.topbar h1{font-size:36px}.topbar p{font-size:13px}
+  .topbar{padding:15px 18px}.code-pdx-row{gap:12px}.topbar h1{font-size:36px}.pdx-display{font-size:11px}.pdx-display strong{font-size:18px}.topbar p{font-size:13px}
   .table-head,.attachment-row{grid-template-columns:1fr;gap:6px}
   .table-head div:nth-child(2){display:none}
   .attachment-row{padding:12px 18px}
