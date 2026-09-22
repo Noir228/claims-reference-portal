@@ -14,7 +14,9 @@ create table if not exists public.entries (
   code text not null unique,
   title text not null,
   pdx text not null default '',
-  notes text not null default '',
+  sdx text not null default '',
+  submission_type text not null default 'Direct Submit',
+  notes text not null default '', 
   sort_order integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -27,6 +29,10 @@ add column if not exists notes text not null default '';
 -- Add optional PDx (principal diagnosis code) to existing installations.
 alter table public.entries
 add column if not exists pdx text not null default '';
+alter table public.entries
+add column if not exists sdx text not null default '';
+alter table public.entries
+add column if not exists submission_type text not null default 'Direct Submit';
 
 create table if not exists public.attachments (
   id uuid primary key default gen_random_uuid(),
