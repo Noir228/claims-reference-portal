@@ -43,6 +43,8 @@
           <div class="code-pdx-row">
             <h1 id="selectedCode">—</h1>
             <span id="selectedPdx" class="pdx-display hidden" aria-label="Principal diagnosis">PDx <strong></strong></span>
+            <span id="selectedSdx" class="sdx-display hidden" aria-label="Secondary diagnosis">SDx <strong></strong></span>
+            <span id="selectedSubmissionType" class="submission-display direct hidden" aria-label="Submission type"><span class="submission-dot" aria-hidden="true"></span><strong></strong></span>
           </div>
           <p id="selectedTitle">Select a reference</p>
         </div>
@@ -162,11 +164,30 @@
               <label>Title<input id="entryTitle" required maxlength="160" placeholder="Enter reference title"></label>
             </div>
 
-            <label class="pdx-admin-field">
-              PDx
-              <span class="muted">Optional principal diagnosis code</span>
-              <input id="entryPdx" maxlength="100" placeholder="Enter PDx code">
-            </label>
+            <div class="diagnosis-admin-grid">
+              <label class="pdx-admin-field">
+                PDx
+                <span class="muted">Optional principal diagnosis code</span>
+                <input id="entryPdx" maxlength="100" placeholder="Enter PDx code">
+              </label>
+
+              <label class="sdx-admin-field">
+                SDx
+                <span class="muted">Optional secondary diagnosis code</span>
+                <input id="entrySdx" maxlength="100" placeholder="Enter SDx code">
+              </label>
+            </div>
+
+            <div class="submission-admin-field">
+              <label class="notes-admin-label">
+                Submission Type
+                <span class="muted">Choose how this reference is submitted.</span>
+              </label>
+              <div id="submissionToggle" class="submission-toggle" role="group" aria-label="Submission type">
+                <button type="button" class="submission-option direct active" data-submission="Direct Submit"><span class="submission-dot" aria-hidden="true"></span>Direct Submit</button>
+                <button type="button" class="submission-option cf4" data-submission="For CF4"><span class="submission-dot" aria-hidden="true"></span>For CF4</button>
+              </div>
+            </div>
 
             <div class="notes-admin-field">
               <label class="notes-admin-label">
