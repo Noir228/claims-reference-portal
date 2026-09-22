@@ -454,6 +454,7 @@ $("entryForm").onsubmit=async e=>{
       }
     }
     await loadEntries();
+    renderAdminList();
     editEntry(entryId);
     alert("Saved successfully.");
   }catch(err){
@@ -479,7 +480,9 @@ $("deleteEntryButton").onclick=async()=>{
     if(paths.length)await supabase.storage.from("attachments").remove(paths);
     const {error}=await supabase.from("entries").delete().eq("id",id);
     if(error)throw error;
-    await loadEntries(); startNewEntry();
+    await loadEntries();
+    renderAdminList();
+    startNewEntry();
   }catch(err){$("saveError").textContent=err.message}
 };
 
