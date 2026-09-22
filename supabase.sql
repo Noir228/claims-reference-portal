@@ -13,10 +13,15 @@ create table if not exists public.entries (
   id uuid primary key default gen_random_uuid(),
   code text not null unique,
   title text not null,
+  notes text not null default '',
   sort_order integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Add Notes / Instructions to existing installations.
+alter table public.entries
+add column if not exists notes text not null default '';
 
 create table if not exists public.attachments (
   id uuid primary key default gen_random_uuid(),
