@@ -143,3 +143,18 @@ form input:focus{border-color:#57bfdc;box-shadow:0 0 0 3px rgba(8,167,223,.10)}
   .form-actions{grid-template-columns:1fr 1fr}
   .form-actions span{display:none}
 }
+
+/* Document Type Editor */
+.document-type-editor-btn{margin-top:10px;align-self:flex-start}
+.admin-head>div:first-child{display:flex;flex-direction:column;align-items:flex-start}
+.document-type-card{width:min(720px,100%);max-height:82vh}
+.document-type-add-row{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:20px}
+.document-type-add-row input{border:1px solid #ccd8de;border-radius:10px;padding:11px 12px;outline:none;font:inherit}
+.document-type-add-row input:focus{border-color:#57bfdc;box-shadow:0 0 0 3px rgba(8,167,223,.10)}
+.document-type-list{display:grid;gap:7px;margin-top:12px;max-height:48vh;overflow:auto}
+.document-type-admin-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid #e0e7ea;border-radius:11px;padding:10px 12px;background:#fbfdfe}
+.document-type-actions{display:flex;gap:6px}
+.document-type-empty{padding:20px;text-align:center;border:1px dashed #d6e0e4;border-radius:10px}
+.admin-attachment-row .a-type{width:100%;border:1px solid #ccd8de;border-radius:10px;padding:11px 12px;outline:none;background:#fff;color:#263840;font:inherit;appearance:auto}
+.admin-attachment-row .a-type:focus{border-color:#57bfdc;box-shadow:0 0 0 3px rgba(8,167,223,.10)}
+@media(max-width:700px){.document-type-add-row{grid-template-columns:1fr}.document-type-admin-row{grid-template-columns:1fr}.document-type-actions{justify-content:flex-end}}
