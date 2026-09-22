@@ -9,6 +9,11 @@
 <body>
   <div class="tutorial-shell">
     <aside class="tutorial-sidebar">
+      <nav class="sidebar-page-nav" aria-label="Portal navigation">
+        <a class="page-nav-btn" href="index.html">⌂ <span>Home</span></a>
+        <a class="page-nav-btn active" href="tutorials.html">▶ <span>Video Tutorials</span></a>
+      </nav>
+
       <div class="brand">
         <div class="brand-mark">CR</div>
         <div><div class="brand-title">Claims Reference</div><div class="brand-subtitle">Reference Portal</div></div>
@@ -23,23 +28,13 @@
 
     <main class="tutorial-main">
       <header class="tutorial-topbar">
-        <nav class="page-nav">
-          <a class="page-nav-btn" href="index.html">⌂ <span>Home</span></a>
-          <a class="page-nav-btn active" href="tutorials.html">▶ <span>Video Tutorials</span></a>
-        </nav>
-        <div class="eyebrow">LEARNING CENTER</div>
-        <h1>Video Tutorials</h1>
-        <p>Step-by-step guides for Claims Reference Portal workflows.</p>
-        <span id="connectionStatus" class="status-badge tutorial-status">Connecting...</span>
+        <div class="tutorial-title-row">
+          <h1 id="tutorialPageTitle">Video Tutorials</h1>
+          <span id="connectionStatus" class="status-badge tutorial-status">Connecting...</span>
+        </div>
       </header>
 
       <section class="tutorial-player-card">
-        <div class="tutorial-player-head">
-          <div>
-            <span class="eyebrow">VIDEO TUTORIAL</span>
-            <div id="tutorialCurrentTitle" class="tutorial-current-title">Select a tutorial</div>
-          </div>
-        </div>
         <div class="tutorial-player-wrap">
           <div id="tutorialPlaceholder" class="tutorial-placeholder">
             <div class="doc-icon">▶</div>
