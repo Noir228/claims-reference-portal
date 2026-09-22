@@ -18,6 +18,10 @@ create table if not exists public.entries (
   updated_at timestamptz not null default now()
 );
 
+-- Add notes/instructions to existing projects without recreating the table.
+alter table public.entries
+add column if not exists notes text not null default '';
+
 create table if not exists public.attachments (
   id uuid primary key default gen_random_uuid(),
   entry_id uuid not null references public.entries(id) on delete cascade,
@@ -31,6 +35,8 @@ create table if not exists public.attachments (
 );
 
 alter table public.profiles enable row level security;
+alter table public.entries add column if not exists notes text not null default '';
+
 alter table public.entries enable row level security;
 alter table public.attachments enable row level security;
 
