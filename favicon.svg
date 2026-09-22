@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b4fa3"/>
+      <stop offset="100%" stop-color="#1688e8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Blue circular background -->
+  <circle cx="256" cy="256" r="238" fill="white"/>
+  <circle cx="256" cy="256" r="222" fill="url(#bg)"/>
+
+  <!-- Decorative swoosh -->
+  <path
+    d="M55 326
+       C105 405 185 445 285 445
+       C360 445 420 418 457 375
+       C400 438 300 458 205 424
+       C130 397 82 355 55 326Z"
+    fill="#65bdf5"
+    opacity=".9"/>
+
+  <!-- Document -->
+  <path
+    d="M135 100
+       Q135 82 153 82
+       H310
+       L383 155
+       V365
+       Q383 383 365 383
+       H153
+       Q135 383 135 365Z"
+    fill="white"/>
+
+  <!-- Folded corner -->
+  <path
+    d="M310 82
+       V137
+       Q310 155 328 155
+       H383Z"
+    fill="#bcd5f0"/>
+
+  <!-- Medical cross -->
+  <path
+    d="M210 132
+       H260
+       V182
+       H310
+       V232
+       H260
+       V282
+       H210
+       V232
+       H160
+       V182
+       H210Z"
+    fill="#073d83"/>
+
+  <!-- Document lines -->
+  <rect x="160" y="310" width="155" height="16" rx="8" fill="#78a4d0"/>
+  <rect x="160" y="342" width="130" height="16" rx="8" fill="#78a4d0"/>
+
+  <!-- Verification circle -->
+  <circle cx="370" cy="350" r="82" fill="white"/>
+  <circle cx="370" cy="350" r="68" fill="#1688e8"/>
+
+  <!-- Check mark -->
+  <path
+    d="M334 350
+       L358 374
+       L410 318"
+    fill="none"
+    stroke="white"
+    stroke-width="22"
+    stroke-linecap="round"
+    stroke-linejoin="round"/>
+</svg>
