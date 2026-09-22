@@ -104,7 +104,7 @@ function renderSelected(){
   const attachments = selectedEntry.attachments || [];
   $("attachmentRows").innerHTML = attachments.length ? attachments.map(a=>`
     <div class="attachment-row">
-      <button class="attachment-link" data-attachment="${a.id}">${escapeHtml(a.label)}</button>
+      <span class="required-dot" aria-hidden="true">●</span><button class="attachment-link" data-attachment="${a.id}">${escapeHtml(a.label)}</button>
       <div class="document-type">${escapeHtml(a.type || "")}</div>
     </div>`).join("") : `<div class="empty-state"><div class="empty-icon">▤</div><h3>No attachments yet</h3><p>The administrator can add documents from the Administrator panel.</p></div>`;
   document.querySelectorAll(".attachment-link").forEach(b=>b.onclick=()=>openAttachment(b.dataset.attachment));
