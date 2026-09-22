@@ -16,24 +16,6 @@ const SUPABASE_ANON_KEY = "sb_publishable_0U_DQ0kK8ccTjFY0E2Wc2A_WU_Z0q8B";
 const configured = !SUPABASE_URL.includes("PASTE_") && !SUPABASE_ANON_KEY.includes("PASTE_");
 const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-const demoData = [
-  {
-    id:"demo-99460", code:"99460", title:"NEWBORN CARE PACKAGE",
-    attachments:[
-      {id:"demo-cf2", label:"CF2", type:"CF2", url:"demo-document.png", kind:"image"},
-      {id:"demo-csf", label:"CSF", type:"CSF", url:"demo-document.png", kind:"image"},
-      {id:"demo-pbef", label:"PBEF OR POSCERTFI", type:"CERTIFICATE OF ELIGIBILITY OR OTHERS", url:"demo-document.png", kind:"image"},
-      {id:"demo-pmrf", label:"PMRF", type:"PMRF", url:"demo-document.png", kind:"image"},
-      {id:"demo-bc", label:"BCNEWBORN", type:"PATIENT'S BIRTH CERTIFICATE", url:"demo-document.png", kind:"image"},
-      {id:"demo-hearing", label:"HEARING TEST", type:"DIAGNOSTIC TEST RESULT", url:"demo-document.png", kind:"image"}
-    ]
-  },
-  {id:"demo-nsd",code:"NSD01",title:"NORMAL SPONTANEOUS DELIVERY",attachments:[]},
-  {id:"demo-90935",code:"90935",title:"HEMODIALYSIS SERVICE",attachments:[]},
-  {id:"demo-acr",code:"ACR",title:"REFERENCE ITEM",attachments:[]},
-  {id:"demo-59513",code:"59513",title:"CESAREAN DELIVERY",attachments:[]},
-  {id:"demo-59514",code:"59514",title:"CESAREAN DELIVERY WITH ADDITIONAL SERVICE",attachments:[]}
-];
 
 let entries = [];
 let selectedEntry = null;
@@ -43,7 +25,6 @@ let totalPages = 1;
 let pdfDocument = null;
 let zoom = 1;
 let isAdmin = false;
-let selectedAdminEntryId = null;
 
 const $ = id => document.getElementById(id);
 
@@ -55,15 +36,15 @@ function setStatus(text, good=true){
 
 async function loadEntries(){
   if(!configured){
-    entries = demoData;
-    setStatus("Demo mode", false);
+    entries = [];
+    setStatus("Not connected", false);
     renderAll();
     return;
   }
   const {data,error} = await supabase.from("entries").select("*, attachments(*)").order("sort_order").order("code");
   if(error){
     console.error(error);
-    entries = demoData;
+    entries = [];
     setStatus("Database error", false);
     renderAll();
     return;
@@ -102,7 +83,6 @@ function renderSelected(){
   if(!selectedEntry) return;
   $("selectedCode").textContent = selectedEntry.code;
   $("selectedTitle").textContent = selectedEntry.title;
-  $("notesContent").textContent = selectedEntry.notes?.trim() || "No notes or instructions added.";
   const attachments = selectedEntry.attachments || [];
   $("attachmentRows").innerHTML = attachments.length ? attachments.map(a=>`
     <div class="attachment-row">
@@ -117,7 +97,6 @@ function showNoMatch(){
   $("selectedCode").textContent="—";
   $("selectedTitle").textContent="No matching reference";
   $("attachmentRows").innerHTML="";
-  $("notesContent").textContent="No notes or instructions added.";
   $("emptyState").classList.remove("hidden");
   resetViewer();
 }
@@ -168,56 +147,20 @@ async function loadPdf(url, canvas){
   updatePageLabels();
 }
 
-async function renderPdfPage(pageNum, canvas, options={}){
+async function renderPdfPage(pageNum, canvas){
   if(!pdfDocument) return;
   const page=await pdfDocument.getPage(pageNum);
   const base=page.getViewport({scale:1});
-  const isMagnifier=options.magnifier===true;
-  const stage=$(isMagnifier ? 'magnifierStage' : 'viewerStage');
-
-  // Normal preview fits the document to the panel. The magnifier renders
-  // at substantially higher native resolution so zoom does not stretch
-  // an already-small canvas.
-  let cssScale;
-  if(isMagnifier){
-    const fitScale=Math.min(2, Math.max(.8, Math.min(
-      Math.max(500, stage.clientWidth-40)/base.width,
-      Math.max(500, stage.clientHeight-40)/base.height
-    )));
-    cssScale=fitScale*zoom;
-  }else{
-    const maxWidth=Math.max(320, stage.clientWidth-30);
-    const maxHeight=Math.max(320, stage.clientHeight-30);
-    const fitScale=Math.min(maxWidth/base.width,maxHeight/base.height);
-    cssScale=Math.min(1.55,Math.max(.25,fitScale));
-  }
-
-  const deviceScale=isMagnifier
-    ? Math.min(2.5, Math.max(2, window.devicePixelRatio || 1))
-    : Math.min(2, window.devicePixelRatio || 1);
-  let renderScale=cssScale*deviceScale;
-
-  // Keep the canvas within a safe memory limit on long scanned documents.
-  const MAX_PIXELS=isMagnifier ? 24000000 : 12000000;
-  const wantedPixels=(base.width*renderScale)*(base.height*renderScale);
-  if(wantedPixels>MAX_PIXELS){
-    renderScale*=Math.sqrt(MAX_PIXELS/wantedPixels);
-  }
-
-  const viewport=page.getViewport({scale:cssScale});
-  const renderViewport=page.getViewport({scale:renderScale});
-  canvas.width=Math.ceil(renderViewport.width);
-  canvas.height=Math.ceil(renderViewport.height);
-  canvas.style.width=viewport.width+'px';
-  canvas.style.height=viewport.height+'px';
-  canvas.style.transform='none';
-  canvas.style.imageRendering='auto';
-
-  const ctx=canvas.getContext('2d', {alpha:false});
-  ctx.setTransform(1,0,0,1,0,0);
-  ctx.fillStyle='#fff';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  await page.render({canvasContext:ctx,viewport:renderViewport}).promise;
+  const maxWidth=Math.max(320, $("viewerStage").clientWidth-30);
+  const scale=Math.min(1.55, maxWidth/base.width);
+  const viewport=page.getViewport({scale});
+  const dpr=window.devicePixelRatio || 1;
+  canvas.width=viewport.width*dpr;
+  canvas.height=viewport.height*dpr;
+  canvas.style.width=viewport.width+"px";
+  canvas.style.height=viewport.height+"px";
+  const ctx=canvas.getContext("2d");
+  await page.render({canvasContext:ctx,viewport:page.getViewport({scale:scale*dpr})}).promise;
 }
 
 function updatePageLabels(){
@@ -235,7 +178,7 @@ async function changePage(delta){
   currentPage=Math.min(totalPages,Math.max(1,currentPage+delta));
   if(pdfDocument) await renderPdfPage(currentPage,$("pdfCanvas"));
   if($("magnifierModal").classList.contains("hidden")===false && pdfDocument)
-    await renderPdfPage(currentPage,$("magnifierCanvas"),{magnifier:true});
+    await renderPdfPage(currentPage,$("magnifierCanvas"));
   updatePageLabels();
 }
 
@@ -247,8 +190,8 @@ async function openMagnifier(){
   ["magnifierCanvas","magnifierImage","magnifierFrame"].forEach(x=>$(x).classList.add("hidden"));
   if(pdfDocument){
     $("magnifierCanvas").classList.remove("hidden");
-    await renderPdfPage(currentPage,$("magnifierCanvas"),{magnifier:true});
-    $("zoomLabel").textContent="100%";
+    await renderPdfPage(currentPage,$("magnifierCanvas"));
+    applyZoom();
   } else if(selectedAttachment.kind==="image" || /\.(png|jpe?g|gif|webp)$/i.test(selectedAttachment.url)){
     $("magnifierImage").src=selectedAttachment.url;
     $("magnifierImage").classList.remove("hidden");
@@ -262,22 +205,11 @@ async function openMagnifier(){
 
 function applyZoom(){
   $("zoomLabel").textContent=Math.round(zoom*100)+"%";
-  if(!pdfDocument){
-    $("magnifierImage").style.transform=`scale(${zoom})`;
-    $("magnifierFrame").style.transform='none';
-  }
+  $("magnifierCanvas").style.transform=`scale(${zoom})`;
+  $("magnifierImage").style.transform=`scale(${zoom})`;
 }
-async function setZoom(nextZoom){
-  zoom=Math.min(3,Math.max(.5,nextZoom));
-  $("zoomLabel").textContent=Math.round(zoom*100)+"%";
-  if(pdfDocument && $("magnifierModal").classList.contains("hidden")===false){
-    await renderPdfPage(currentPage,$("magnifierCanvas"),{magnifier:true});
-  } else {
-    applyZoom();
-  }
-}
-$("zoomIn").onclick=()=>setZoom(zoom+.25);
-$("zoomOut").onclick=()=>setZoom(zoom-.25);
+$("zoomIn").onclick=()=>{zoom=Math.min(3,zoom+.25);applyZoom()};
+$("zoomOut").onclick=()=>{zoom=Math.max(.5,zoom-.25);applyZoom()};
 
 $("prevPage").onclick=()=>changePage(-1);
 $("nextPage").onclick=()=>changePage(1);
@@ -293,7 +225,7 @@ document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.c
 $("adminButton").onclick=async()=>{
   if(isAdmin) openAdmin();
   else if(configured) $("loginModal").classList.remove("hidden");
-  else alert("This downloadable demo is in Demo mode. Configure Supabase using README.md to enable administrator login and shared editing.");
+  else alert("Supabase is not configured. Configure the Supabase settings in app.js to enable administrator login and shared editing.");
 };
 
 $("loginForm").onsubmit=async e=>{
@@ -339,25 +271,20 @@ function startNewEntry(){
   $("editEntryId").value="";
   $("entryCode").value="";
   $("entryTitle").value="";
-  $("entryNotes").value="";
   $("deleteEntryButton").classList.add("hidden");
-  selectedAdminEntryId=null;
   $("adminAttachments").innerHTML="";
   addAttachmentRow();
   $("saveError").textContent="";
 }
-$("newEntryButton").type="button";
-$("newEntryButton").addEventListener("click", (ev)=>{ ev.preventDefault(); ev.stopPropagation(); startNewEntry(); });
+$("newEntryButton").onclick=startNewEntry;
 
 function editEntry(id){
-  selectedAdminEntryId=id;
   const e=entries.find(x=>String(x.id)===String(id)); if(!e)return;
   $("editorHeading").textContent="Edit reference";
   $("editorHint").textContent="Update the code, title or attachments.";
   $("editEntryId").value=e.id;
   $("entryCode").value=e.code;
   $("entryTitle").value=e.title;
-  $("entryNotes").value=e.notes || "";
   $("deleteEntryButton").classList.remove("hidden");
   $("adminAttachments").innerHTML="";
   (e.attachments||[]).forEach(a=>{
@@ -382,40 +309,15 @@ function addAttachmentRow(a=null){
   row.querySelector(".remove-row").onclick=()=>row.remove();
   $("adminAttachments").appendChild(row);
 }
-$("addAttachmentRow").type="button";
-$("addAttachmentRow").addEventListener("click", (ev)=>{ ev.preventDefault(); ev.stopPropagation(); addAttachmentRow(); });
-
-function addStandardNewbornAttachments(){
-  const standard=[
-    ["CF2","CF2"],
-    ["CSF","CSF"],
-    ["PBEF","PBEF"],
-    ["PMRF","PMRF"],
-    ["BCNEWBORN","PATIENT'S BIRTH CERTIFICATE"],
-    ["HEARING TEST","DIAGNOSTIC TEST RESULT"]
-  ];
-  const existing=[...document.querySelectorAll("#adminAttachments .admin-attachment-row")].map(row=>
-    row.querySelector(".a-label")?.value.trim().toUpperCase()
-  );
-  for(const [label,type] of standard){
-    if(!existing.includes(label.toUpperCase())) addAttachmentRow({label,type});
-  }
-}
-$("standardNewbornAttachments").onclick=addStandardNewbornAttachments;
-// The editor starts blank; the predefined newborn shortcut is intentionally hidden.
-$("standardNewbornAttachments").classList.add("hidden");
+$("addAttachmentRow").onclick=()=>addAttachmentRow();
 
 $("entryForm").onsubmit=async e=>{
   e.preventDefault();
   $("saveError").textContent="";
-  if(!configured){$("saveError").textContent="Configure Supabase first. Demo mode does not save changes.";return}
+  if(!configured){$("saveError").textContent="Configure Supabase first. Changes cannot be saved until Supabase is configured.";return}
   if(!isAdmin)return;
   const id=$("editEntryId").value;
-  const payload={
-    code:$("entryCode").value.trim(),
-    title:$("entryTitle").value.trim(),
-    notes:$("entryNotes").value.trim()
-  };
+  const payload={code:$("entryCode").value.trim(),title:$("entryTitle").value.trim()};
   if(!payload.code||!payload.title){$("saveError").textContent="Code and title are required.";return}
   try{
     let entryId=id;
