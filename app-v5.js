@@ -56,24 +56,57 @@ function setStatus(text, good=true){
 
 async function loadEntries(){
   if(!configured){
-    entries = demoData;
-    setStatus("Demo mode", false);
+    entries = [];
+    setStatus("Not connected", false);
     renderAll();
     return;
   }
-  const {data,error} = await supabase.from("entries").select("*, attachments(*)").order("sort_order").order("code");
-  if(error){
-    console.error(error);
-    entries = demoData;
+
+  // Load entries and attachments separately. This is more reliable with
+  // Supabase/PostgREST than relying on a nested relationship query.
+  const entriesResult = await supabase
+    .from("entries")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("code", { ascending: true });
+
+  if(entriesResult.error){
+    console.error("Entries query failed:", entriesResult.error);
+    entries = [];
     setStatus("Database error", false);
     renderAll();
     return;
   }
-  entries = data || [];
-  setStatus("Connected");
+
+  const attachmentsResult = await supabase
+    .from("attachments")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if(attachmentsResult.error){
+    console.error("Attachments query failed:", attachmentsResult.error);
+    // Entries can still be displayed even if the attachment query fails.
+    entries = (entriesResult.data || []).map(e => ({...e, attachments: []}));
+    setStatus("Connected", true);
+    renderAll();
+    return;
+  }
+
+  const attachmentMap = new Map();
+  (attachmentsResult.data || []).forEach(a => {
+    const key = String(a.entry_id);
+    if(!attachmentMap.has(key)) attachmentMap.set(key, []);
+    attachmentMap.get(key).push(a);
+  });
+
+  entries = (entriesResult.data || []).map(e => ({
+    ...e,
+    attachments: attachmentMap.get(String(e.id)) || []
+  }));
+
+  setStatus("Connected", true);
   renderAll();
 }
-
 function renderAll(){
   const q = $("searchInput").value.trim().toLowerCase();
   const filtered = entries.filter(e => !q || e.code.toLowerCase().includes(q) || e.title.toLowerCase().includes(q));
