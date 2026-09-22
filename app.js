@@ -43,6 +43,7 @@ let totalPages = 1;
 let pdfDocument = null;
 let zoom = 1;
 let isAdmin = false;
+let selectedAdminEntryId = null;
 
 const $ = id => document.getElementById(id);
 
@@ -172,26 +173,49 @@ async function renderPdfPage(pageNum, canvas, options={}){
   const page=await pdfDocument.getPage(pageNum);
   const base=page.getViewport({scale:1});
   const isMagnifier=options.magnifier===true;
-  const stage=$(isMagnifier ? "magnifierStage" : "viewerStage");
-  const maxWidth=Math.max(320, stage.clientWidth-(isMagnifier ? 70 : 30));
-  const maxHeight=Math.max(320, stage.clientHeight-(isMagnifier ? 70 : 30));
-  const fitScale=Math.min(maxWidth/base.width, maxHeight/base.height);
-  const baseScale=Math.min(isMagnifier ? 2.5 : 1.55, Math.max(.25, fitScale));
-  const requestedZoom=isMagnifier ? zoom : 1;
-  // Render the PDF at the requested zoom instead of enlarging an already-rendered canvas.
-  // This keeps text and lines sharp when the user zooms in.
-  const cssScale=baseScale*requestedZoom;
-  const dpr=Math.min(3, window.devicePixelRatio || 1);
+  const stage=$(isMagnifier ? 'magnifierStage' : 'viewerStage');
+
+  // Normal preview fits the document to the panel. The magnifier renders
+  // at substantially higher native resolution so zoom does not stretch
+  // an already-small canvas.
+  let cssScale;
+  if(isMagnifier){
+    const fitScale=Math.min(2, Math.max(.8, Math.min(
+      Math.max(500, stage.clientWidth-40)/base.width,
+      Math.max(500, stage.clientHeight-40)/base.height
+    )));
+    cssScale=fitScale*zoom;
+  }else{
+    const maxWidth=Math.max(320, stage.clientWidth-30);
+    const maxHeight=Math.max(320, stage.clientHeight-30);
+    const fitScale=Math.min(maxWidth/base.width,maxHeight/base.height);
+    cssScale=Math.min(1.55,Math.max(.25,fitScale));
+  }
+
+  const deviceScale=isMagnifier
+    ? Math.min(2.5, Math.max(2, window.devicePixelRatio || 1))
+    : Math.min(2, window.devicePixelRatio || 1);
+  let renderScale=cssScale*deviceScale;
+
+  // Keep the canvas within a safe memory limit on long scanned documents.
+  const MAX_PIXELS=isMagnifier ? 24000000 : 12000000;
+  const wantedPixels=(base.width*renderScale)*(base.height*renderScale);
+  if(wantedPixels>MAX_PIXELS){
+    renderScale*=Math.sqrt(MAX_PIXELS/wantedPixels);
+  }
+
   const viewport=page.getViewport({scale:cssScale});
-  const renderViewport=page.getViewport({scale:cssScale*dpr});
+  const renderViewport=page.getViewport({scale:renderScale});
   canvas.width=Math.ceil(renderViewport.width);
   canvas.height=Math.ceil(renderViewport.height);
-  canvas.style.width=viewport.width+"px";
-  canvas.style.height=viewport.height+"px";
-  canvas.style.transform="none";
-  const ctx=canvas.getContext("2d", {alpha:false});
+  canvas.style.width=viewport.width+'px';
+  canvas.style.height=viewport.height+'px';
+  canvas.style.transform='none';
+  canvas.style.imageRendering='auto';
+
+  const ctx=canvas.getContext('2d', {alpha:false});
   ctx.setTransform(1,0,0,1,0,0);
-  ctx.fillStyle="#fff";
+  ctx.fillStyle='#fff';
   ctx.fillRect(0,0,canvas.width,canvas.height);
   await page.render({canvasContext:ctx,viewport:renderViewport}).promise;
 }
@@ -238,8 +262,10 @@ async function openMagnifier(){
 
 function applyZoom(){
   $("zoomLabel").textContent=Math.round(zoom*100)+"%";
-  $("magnifierCanvas").style.transform=`scale(${zoom})`;
-  $("magnifierImage").style.transform=`scale(${zoom})`;
+  if(!pdfDocument){
+    $("magnifierImage").style.transform=`scale(${zoom})`;
+    $("magnifierFrame").style.transform='none';
+  }
 }
 async function setZoom(nextZoom){
   zoom=Math.min(3,Math.max(.5,nextZoom));
@@ -315,13 +341,16 @@ function startNewEntry(){
   $("entryTitle").value="";
   $("entryNotes").value="";
   $("deleteEntryButton").classList.add("hidden");
+  selectedAdminEntryId=null;
   $("adminAttachments").innerHTML="";
   addAttachmentRow();
   $("saveError").textContent="";
 }
-$("newEntryButton").onclick=startNewEntry;
+$("newEntryButton").type="button";
+$("newEntryButton").addEventListener("click", (ev)=>{ ev.preventDefault(); ev.stopPropagation(); startNewEntry(); });
 
 function editEntry(id){
+  selectedAdminEntryId=id;
   const e=entries.find(x=>String(x.id)===String(id)); if(!e)return;
   $("editorHeading").textContent="Edit reference";
   $("editorHint").textContent="Update the code, title or attachments.";
@@ -353,7 +382,8 @@ function addAttachmentRow(a=null){
   row.querySelector(".remove-row").onclick=()=>row.remove();
   $("adminAttachments").appendChild(row);
 }
-$("addAttachmentRow").onclick=()=>addAttachmentRow();
+$("addAttachmentRow").type="button";
+$("addAttachmentRow").addEventListener("click", (ev)=>{ ev.preventDefault(); ev.stopPropagation(); addAttachmentRow(); });
 
 function addStandardNewbornAttachments(){
   const standard=[
@@ -372,6 +402,8 @@ function addStandardNewbornAttachments(){
   }
 }
 $("standardNewbornAttachments").onclick=addStandardNewbornAttachments;
+// The editor starts blank; the predefined newborn shortcut is intentionally hidden.
+$("standardNewbornAttachments").classList.add("hidden");
 
 $("entryForm").onsubmit=async e=>{
   e.preventDefault();
