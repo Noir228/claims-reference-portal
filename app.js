@@ -106,8 +106,7 @@ function renderSelected(){
   $("attachmentRows").innerHTML = attachments.length ? attachments.map(a=>`
     <div class="attachment-row">
       <div class="attachment-name-cell">
-        <span class="important-check" aria-hidden="true">✓</span>
-        <button class="attachment-link" data-attachment="${a.id}">${escapeHtml(a.label)}</button>
+        <button class="attachment-link ${a.important ? "important-attachment" : ""}" data-attachment="${a.id}">${escapeHtml(a.label)}</button>
       </div>
       <div class="document-type">${escapeHtml(a.type || "")}</div>
     </div>`).join("") : `<div class="empty-state"><div class="empty-icon">▤</div><h3>No attachments yet</h3><p>The administrator can add documents from the Administrator panel.</p></div>`;
@@ -479,7 +478,7 @@ function addAttachmentRow(a=null){
   if(currentType && !documentTypes.some(t=>String(t.name)===currentType))
     options.push(`<option value="${escapeAttr(currentType)}" selected>${escapeHtml(currentType)} (existing)</option>`);
   row.innerHTML=`
-    <label><span class="admin-attachment-label"><span class="attachment-admin-check" aria-hidden="true">✓</span> Attachment label</span><input class="a-label" required value="${escapeAttr(a?.label||"")}" placeholder=""></label>
+    <label><span class="admin-attachment-label"><input class="a-important" type="checkbox" ${a?.important ? "checked" : ""}> <span>Important attachment</span></span><input class="a-label" required value="${escapeAttr(a?.label||"")}" placeholder=""></label>
     <label>Document type<select class="a-type">${options.join("")}</select></label>
     <button type="button" class="remove-row" title="Remove attachment">×</button>
     <label class="file-field">File ${a?.url?`<small class="muted">Current file: ${escapeHtml(a.file_name||"uploaded document")}</small>`:""}
@@ -600,12 +599,12 @@ $("entryForm").onsubmit=async e=>{
       if(!label)continue;
       if(row.dataset.attachmentId){
         const aid=row.dataset.attachmentId; keepIds.push(aid);
-        let update={label,type};
+        let update={label,type,important:row.querySelector(".a-important").checked};
         if(file){const uploaded=await uploadFile(entryId,file); update={...update,...uploaded};}
         const {error}=await supabase.from("attachments").update(update).eq("id",aid); if(error)throw error;
       }else if(file){
         const uploaded=await uploadFile(entryId,file);
-        const {error}=await supabase.from("attachments").insert({entry_id:entryId,label,type,...uploaded});
+        const {error}=await supabase.from("attachments").insert({entry_id:entryId,label,type,important:row.querySelector(".a-important").checked,...uploaded});
         if(error)throw error;
       }else{
         // New attachment rows need a file. Ignore blank file rows.
