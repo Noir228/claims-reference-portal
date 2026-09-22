@@ -8,8 +8,7 @@ alter table public.entries
 add column if not exists sdx text not null default '';
 
 alter table public.entries
-add column if not exists submission_type text not null default 'Direct Submit';
+add column if not exists submission_type text not null default '';
 
-update public.entries
-set submission_type = 'Direct Submit'
-where submission_type is null or trim(submission_type) = '';
+alter table public.entries alter column submission_type set default '';
+
