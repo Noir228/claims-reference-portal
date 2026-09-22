@@ -20,6 +20,7 @@ const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : nu
 let entries = [];
 let documentTypes = [];
 let selectedEntry = null;
+let adminSelectedEntryId = null;
 let selectedAttachment = null;
 let currentPage = 1;
 let totalPages = 1;
@@ -104,7 +105,10 @@ function renderSelected(){
   const attachments = selectedEntry.attachments || [];
   $("attachmentRows").innerHTML = attachments.length ? attachments.map(a=>`
     <div class="attachment-row">
-      <span class="required-dot" aria-hidden="true">●</span><button class="attachment-link" data-attachment="${a.id}">${escapeHtml(a.label)}</button>
+      <div class="attachment-name-cell">
+        <span class="important-check" aria-hidden="true">✓</span>
+        <button class="attachment-link" data-attachment="${a.id}">${escapeHtml(a.label)}</button>
+      </div>
       <div class="document-type">${escapeHtml(a.type || "")}</div>
     </div>`).join("") : `<div class="empty-state"><div class="empty-icon">▤</div><h3>No attachments yet</h3><p>The administrator can add documents from the Administrator panel.</p></div>`;
   document.querySelectorAll(".attachment-link").forEach(b=>b.onclick=()=>openAttachment(b.dataset.attachment));
@@ -351,7 +355,7 @@ $("logoutButton").onclick=async()=>{
 
 function renderAdminList(){
   $("adminEntryList").innerHTML=entries.map(e=>`
-    <div class="admin-entry-item ${selectedEntry?.id===e.id?'selected':''}">
+    <div class="admin-entry-item ${adminSelectedEntryId && String(adminSelectedEntryId)===String(e.id)?'selected':''}">
       <button data-edit="${e.id}">
         <span class="admin-entry-code">${escapeHtml(e.code)}</span>
         <span class="admin-entry-title">${escapeHtml(e.title)}</span>
@@ -424,6 +428,7 @@ document.querySelectorAll("#submissionToggle .submission-option").forEach(btn=>{
 });
 
 function startNewEntry(){
+  adminSelectedEntryId = null;
   $("editorHeading").textContent="Add a reference";
   $("editorHint").textContent="Create a new code and attach documents.";
   $("editEntryId").value="";
@@ -443,6 +448,8 @@ $("newEntryButton").onclick=startNewEntry;
 
 function editEntry(id){
   const e=entries.find(x=>String(x.id)===String(id)); if(!e)return;
+  adminSelectedEntryId = e.id;
+  renderAdminList();
   $("editorHeading").textContent="Edit reference";
   $("editorHint").textContent="Update the code, title or attachments.";
   $("editEntryId").value=e.id;
@@ -472,7 +479,7 @@ function addAttachmentRow(a=null){
   if(currentType && !documentTypes.some(t=>String(t.name)===currentType))
     options.push(`<option value="${escapeAttr(currentType)}" selected>${escapeHtml(currentType)} (existing)</option>`);
   row.innerHTML=`
-    <label>Attachment label<input class="a-label" required value="${escapeAttr(a?.label||"")}" placeholder=""></label>
+    <label><span class="admin-attachment-label"><span class="attachment-admin-check" aria-hidden="true">✓</span> Attachment label</span><input class="a-label" required value="${escapeAttr(a?.label||"")}" placeholder=""></label>
     <label>Document type<select class="a-type">${options.join("")}</select></label>
     <button type="button" class="remove-row" title="Remove attachment">×</button>
     <label class="file-field">File ${a?.url?`<small class="muted">Current file: ${escapeHtml(a.file_name||"uploaded document")}</small>`:""}
@@ -614,6 +621,7 @@ $("entryForm").onsubmit=async e=>{
       }
     }
     await loadEntries();
+    adminSelectedEntryId = entryId;
     renderAdminList();
     editEntry(entryId);
     alert("Saved successfully.");
@@ -641,6 +649,7 @@ $("deleteEntryButton").onclick=async()=>{
     const {error}=await supabase.from("entries").delete().eq("id",id);
     if(error)throw error;
     await loadEntries();
+    adminSelectedEntryId = null;
     renderAdminList();
     startNewEntry();
   }catch(err){$("saveError").textContent=err.message}
