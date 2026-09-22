@@ -44,6 +44,9 @@ button{cursor:pointer}
 .topbar h1{margin:1px 0 0;font-size:50px;line-height:1;font-weight:800;letter-spacing:-.04em}
 .topbar p{margin:5px 0 0;font-size:18px;font-weight:700;letter-spacing:.05em}
 .status-badge{background:#e9fff2;color:#087443;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:700}
+.pdx-display{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:6px 10px;border:1px solid rgba(39,120,139,.18);border-radius:10px;background:rgba(255,255,255,.42);color:#4d6b74;font-size:10px;font-weight:800;letter-spacing:.03em}
+.pdx-display strong{color:#1e5969;font-size:11px;font-weight:800}
+.top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
 .content-grid{max-width:1380px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:12px}
 .details-card,.viewer-card{background:var(--panel);border:1px solid #d9e0e4;border-radius:16px;box-shadow:0 10px 35px rgba(15,45,60,.06);overflow:hidden}
@@ -106,6 +109,8 @@ form input:focus{border-color:#57bfdc;box-shadow:0 0 0 3px rgba(8,167,223,.10)}
 .admin-entry-code{font-weight:800}.admin-entry-title{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;margin-top:3px}
 .editor-section{background:#fbfdfe}
 .form-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:12px;margin:15px 0}
+.pdx-admin-field{margin:0 0 20px}
+.pdx-admin-field input{max-width:360px}
 .notes-admin-field{margin:0 0 20px}
 .notes-admin-label{display:flex;flex-direction:column;gap:3px;margin-bottom:8px}
 .notes-rows{display:grid;gap:8px;margin-bottom:10px}
