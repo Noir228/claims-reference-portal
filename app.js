@@ -18,7 +18,6 @@ const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : nu
 
 
 let entries = [];
-let documentTypes = [];
 let selectedEntry = null;
 let selectedAttachment = null;
 let currentPage = 1;
@@ -35,13 +34,6 @@ function setStatus(text, good=true){
   $("connectionStatus").style.color = good ? "#087443" : "#9a5a00";
 }
 
-async function loadDocumentTypes(){
-  if(!configured){ documentTypes=[]; return; }
-  const {data,error}=await supabase.from("document_types").select("*").order("sort_order",{ascending:true}).order("name",{ascending:true});
-  if(error){ console.error("Document types query failed:", error); documentTypes=[]; return; }
-  documentTypes=data||[];
-}
-
 async function loadEntries(){
   if(!configured){
     entries = [];
@@ -49,7 +41,6 @@ async function loadEntries(){
     renderAll();
     return;
   }
-  await loadDocumentTypes();
   const {data,error} = await supabase.from("entries").select("*, attachments(*)").order("sort_order").order("code");
   if(error){
     console.error(error);
@@ -253,10 +244,9 @@ $("loginForm").onsubmit=async e=>{
   isAdmin=true; $("loginModal").classList.add("hidden"); openAdmin();
 };
 
-async function openAdmin(){
+function openAdmin(){
   $("adminModal").classList.remove("hidden");
   renderAdminList();
-  await refreshDocumentTypeControls();
   startNewEntry();
 }
 $("logoutButton").onclick=async()=>{
@@ -309,16 +299,9 @@ function editEntry(id){
 function addAttachmentRow(a=null){
   const row=document.createElement("div");
   row.className="admin-attachment-row";
-  const currentType=String(a?.type||"");
-  const typeOptions=[
-    `<option value="">Select document type</option>`,
-    ...documentTypes.map(t=>`<option value="${escapeAttr(t.name)}"${currentType===String(t.name)?" selected":""}>${escapeHtml(t.name)}</option>`)
-  ];
-  if(currentType && !documentTypes.some(t=>String(t.name)===currentType))
-    typeOptions.push(`<option value="${escapeAttr(currentType)}" selected>${escapeHtml(currentType)} (existing)</option>`);
   row.innerHTML=`
     <label>Attachment label<input class="a-label" required value="${escapeAttr(a?.label||"")}" placeholder=""></label>
-    <label>Document type<select class="a-type">${typeOptions.join("")}</select></label>
+    <label>Document type<input class="a-type" value="${escapeAttr(a?.type||"")}" placeholder=""></label>
     <button type="button" class="remove-row" title="Remove attachment">×</button>
     <label class="file-field">File ${a?.url?`<small class="muted">Current file: ${escapeHtml(a.file_name||"uploaded document")}</small>`:""}
       <input class="a-file" type="file" accept=".pdf,image/*">
@@ -327,64 +310,6 @@ function addAttachmentRow(a=null){
   $("adminAttachments").appendChild(row);
 }
 $("addAttachmentRow").onclick=()=>addAttachmentRow();
-
-async function refreshDocumentTypeControls(){
-  await loadDocumentTypes();
-  document.querySelectorAll(".admin-attachment-row .a-type").forEach(select=>{
-    const current=select.value;
-    const options=[`<option value="">Select document type</option>`,
-      ...documentTypes.map(t=>`<option value="${escapeAttr(t.name)}">${escapeHtml(t.name)}</option>`)];
-    if(current && !documentTypes.some(t=>String(t.name)===String(current)))
-      options.push(`<option value="${escapeAttr(current)}" selected>${escapeHtml(current)} (existing)</option>`);
-    select.innerHTML=options.join("");
-    if(current) select.value=current;
-  });
-  renderDocumentTypeAdmin();
-}
-
-function renderDocumentTypeAdmin(){
-  const box=$("documentTypeList"); if(!box)return;
-  box.innerHTML=documentTypes.length ? documentTypes.map(t=>`
-    <div class="document-type-admin-row">
-      <span>${escapeHtml(t.name)}</span>
-      <div class="document-type-actions">
-        <button type="button" class="secondary-btn compact" data-edit-doctype="${escapeAttr(t.id)}">Edit</button>
-        <button type="button" class="danger-btn compact" data-delete-doctype="${escapeAttr(t.id)}">Delete</button>
-      </div>
-    </div>`).join("") : `<div class="muted document-type-empty">No document types added yet.</div>`;
-
-  document.querySelectorAll("[data-edit-doctype]").forEach(btn=>{
-    btn.onclick=async()=>{
-      const item=documentTypes.find(x=>String(x.id)===String(btn.dataset.editDoctype)); if(!item)return;
-      const name=prompt("Edit document type:",item.name); if(name===null)return;
-      const clean=name.trim();
-      if(!clean)return alert("Document type cannot be blank.");
-      if(documentTypes.some(x=>String(x.id)!==String(item.id)&&String(x.name).toLowerCase()===clean.toLowerCase()))
-        return alert("That document type already exists.");
-      const {error}=await supabase.from("document_types").update({name:clean}).eq("id",item.id);
-      if(error)return alert(error.message);
-      await refreshDocumentTypeControls();
-    };
-  });
-  document.querySelectorAll("[data-delete-doctype]").forEach(btn=>{
-    btn.onclick=async()=>{
-      const item=documentTypes.find(x=>String(x.id)===String(btn.dataset.deleteDoctype)); if(!item)return;
-      if(!confirm(`Delete document type "${item.name}"?`))return;
-      const {error}=await supabase.from("document_types").delete().eq("id",item.id);
-      if(error)return alert(error.message);
-      await refreshDocumentTypeControls();
-    };
-  });
-}
-
-$("addDocumentTypeButton").onclick=async()=>{
-  const input=$("newDocumentType"); const name=input.value.trim(); if(!name)return;
-  if(documentTypes.some(x=>String(x.name).toLowerCase()===name.toLowerCase()))
-    return alert("That document type already exists.");
-  const {error}=await supabase.from("document_types").insert({name,sort_order:documentTypes.length+1});
-  if(error)return alert(error.message);
-  input.value=""; await refreshDocumentTypeControls();
-};
 
 $("entryForm").onsubmit=async e=>{
   e.preventDefault();
