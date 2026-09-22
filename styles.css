@@ -43,7 +43,7 @@ button{cursor:pointer}
 .topbar .eyebrow{color:#27788b}
 .code-pdx-row{display:flex;align-items:center;gap:18px;min-width:0}
 .topbar h1{margin:1px 0 0;font-size:50px;line-height:1;font-weight:800;letter-spacing:-.04em}
-.pdx-display{display:inline-flex;align-items:baseline;gap:7px;min-height:0;padding:0;border:0;border-radius:0;background:transparent;color:#27788b;font-size:14px;font-weight:800;letter-spacing:.02em;white-space:nowrap}
+.pdx-display{display:inline-flex;align-items:center;gap:7px;min-height:0;padding:8px 13px;border:1px solid rgba(39,120,139,.45);border-radius:10px;background:rgba(255,255,255,.22);color:#27788b;font-size:14px;font-weight:800;letter-spacing:.02em;white-space:nowrap}.pdx-display strong{color:#111827;font-size:25px;font-weight:800;letter-spacing:-.02em}
 .pdx-display strong{color:#111827;font-size:25px;font-weight:800;letter-spacing:-.02em}
 .topbar p{margin:5px 0 0;font-size:18px;font-weight:700;letter-spacing:.05em}
 .status-badge{background:#e9fff2;color:#087443;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:700}
