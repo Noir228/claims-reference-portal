@@ -95,6 +95,11 @@ function renderSelected(){
   if(!selectedEntry) return;
   $("selectedCode").textContent = selectedEntry.code;
   $("selectedTitle").textContent = selectedEntry.title;
+
+  const notes = String(selectedEntry.notes || "").trim();
+  $("notesContent").textContent = notes;
+  $("notesSection").classList.toggle("hidden", !notes);
+
   const attachments = selectedEntry.attachments || [];
   $("attachmentRows").innerHTML = attachments.length ? attachments.map(a=>`
     <div class="attachment-row">
@@ -109,6 +114,8 @@ function showNoMatch(){
   $("selectedCode").textContent="—";
   $("selectedTitle").textContent="No matching reference";
   $("attachmentRows").innerHTML="";
+  $("notesContent").textContent="";
+  $("notesSection").classList.add("hidden");
   $("emptyState").classList.remove("hidden");
   resetViewer();
 }
@@ -304,6 +311,7 @@ function startNewEntry(){
   $("editEntryId").value="";
   $("entryCode").value="";
   $("entryTitle").value="";
+  $("entryNotes").value="";
   $("deleteEntryButton").classList.add("hidden");
   $("adminAttachments").innerHTML="";
   addAttachmentRow();
@@ -318,6 +326,7 @@ function editEntry(id){
   $("editEntryId").value=e.id;
   $("entryCode").value=e.code;
   $("entryTitle").value=e.title;
+  $("entryNotes").value=e.notes || "";
   $("deleteEntryButton").classList.remove("hidden");
   $("adminAttachments").innerHTML="";
   (e.attachments||[]).forEach(a=>{
@@ -429,7 +438,11 @@ $("entryForm").onsubmit=async e=>{
   if(!configured){$("saveError").textContent="Configure Supabase first. Changes cannot be saved until Supabase is configured.";return}
   if(!isAdmin)return;
   const id=$("editEntryId").value;
-  const payload={code:$("entryCode").value.trim(),title:$("entryTitle").value.trim()};
+  const payload={
+    code:$("entryCode").value.trim(),
+    title:$("entryTitle").value.trim(),
+    notes:$("entryNotes").value.trim()
+  };
   if(!payload.code||!payload.title){$("saveError").textContent="Code and title are required.";return}
   try{
     let entryId=id;
