@@ -53,8 +53,8 @@ values ('YOUR-USER-UUID-HERE', true);
 
 Do NOT put your administrator password in the website code.
 
-### 4. Add Supabase keys
-Open `app.js`.
+### 4. Supabase connection
+This copy of the website has already been configured with the Supabase Project URL and Publishable Key supplied for this project. If you ever create a different Supabase project, update `app.js`.
 
 Replace:
 
@@ -87,7 +87,6 @@ Create a GitHub repository and upload:
 - styles.css
 - app.js
 - supabase.sql
-- demo-document.png
 
 Enable GitHub Pages for the repository.
 
@@ -116,4 +115,3 @@ The code is deliberately structured so the visual design can be changed without 
 - print/download buttons
 - mobile layout
 
-The initial demo data includes the reference codes shown in the supplied screenshot.
