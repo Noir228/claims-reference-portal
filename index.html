@@ -121,6 +121,7 @@
           <div class="eyebrow">ADMINISTRATION</div>
           <h2>Reference Database Manager</h2>
           <p class="muted">Add, edit or remove codes and their attachments. Visitors have read-only access.</p>
+          <button id="documentTypeEditorButton" type="button" class="secondary-btn compact document-type-editor-btn">Document Type Editor</button>
         </div>
         <button id="logoutButton" class="secondary-btn">Sign out</button>
       </div>
@@ -163,6 +164,23 @@
           </form>
         </section>
       </div>
+    </div>
+  </div>
+
+  <!-- Document Type Editor -->
+  <div id="documentTypeModal" class="modal hidden">
+    <div class="modal-card document-type-card">
+      <button class="modal-close" data-close="documentTypeModal">×</button>
+      <div class="eyebrow">ADMINISTRATION</div>
+      <h2>Document Type Editor</h2>
+      <p class="muted">Add, edit or remove the choices available in the Document Type dropdown.</p>
+
+      <div class="document-type-add-row">
+        <input id="newDocumentType" type="text" maxlength="160" placeholder="Add document type">
+        <button id="addDocumentTypeButton" type="button" class="primary-btn compact">＋ Add</button>
+      </div>
+      <div id="documentTypeEditorError" class="form-error"></div>
+      <div id="documentTypeList" class="document-type-list"></div>
     </div>
   </div>
 
