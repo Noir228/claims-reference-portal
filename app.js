@@ -159,20 +159,31 @@ async function loadPdf(url, canvas){
   updatePageLabels();
 }
 
-async function renderPdfPage(pageNum, canvas){
+async function renderPdfPage(pageNum, canvas, mode="main"){
   if(!pdfDocument) return;
   const page=await pdfDocument.getPage(pageNum);
   const base=page.getViewport({scale:1});
-  const maxWidth=Math.max(320, $("viewerStage").clientWidth-30);
-  const scale=Math.min(1.55, maxWidth/base.width);
-  const viewport=page.getViewport({scale});
+  const stage = mode === "magnifier" ? $("magnifierStage") : $("viewerStage");
+  const maxWidth=Math.max(320, stage.clientWidth-48);
+  const maxHeight=Math.max(320, stage.clientHeight-48);
+  const fitScale=Math.min(maxWidth/base.width, maxHeight/base.height);
+  const fit=Math.min(mode === "magnifier" ? 2.5 : 1.55, fitScale);
+  const requestedZoom = mode === "magnifier" ? zoom : 1;
+  const cssScale = Math.max(0.25, fit * requestedZoom);
   const dpr=window.devicePixelRatio || 1;
-  canvas.width=viewport.width*dpr;
-  canvas.height=viewport.height*dpr;
-  canvas.style.width=viewport.width+"px";
-  canvas.style.height=viewport.height+"px";
-  const ctx=canvas.getContext("2d");
-  await page.render({canvasContext:ctx,viewport:page.getViewport({scale:scale*dpr})}).promise;
+  // Render the PDF at the zoomed resolution instead of enlarging a low-resolution canvas.
+  // This keeps text and fine details sharp when the magnifier is zoomed in.
+  const renderScale = cssScale * dpr;
+  const renderViewport=page.getViewport({scale:renderScale});
+  const displayViewport=page.getViewport({scale:cssScale});
+  canvas.width=Math.ceil(renderViewport.width);
+  canvas.height=Math.ceil(renderViewport.height);
+  canvas.style.width=displayViewport.width+"px";
+  canvas.style.height=displayViewport.height+"px";
+  canvas.style.transform="none";
+  const ctx=canvas.getContext("2d", {alpha:false});
+  ctx.setTransform(1,0,0,1,0,0);
+  await page.render({canvasContext:ctx,viewport:renderViewport}).promise;
 }
 
 function updatePageLabels(){
@@ -188,9 +199,9 @@ function updatePageLabels(){
 async function changePage(delta){
   if(!selectedAttachment || totalPages<=1) return;
   currentPage=Math.min(totalPages,Math.max(1,currentPage+delta));
-  if(pdfDocument) await renderPdfPage(currentPage,$("pdfCanvas"));
+  if(pdfDocument) await renderPdfPage(currentPage,$("pdfCanvas"),"main");
   if($("magnifierModal").classList.contains("hidden")===false && pdfDocument)
-    await renderPdfPage(currentPage,$("magnifierCanvas"));
+    await renderPdfPage(currentPage,$("magnifierCanvas"),"magnifier");
   updatePageLabels();
 }
 
@@ -202,7 +213,7 @@ async function openMagnifier(){
   ["magnifierCanvas","magnifierImage","magnifierFrame"].forEach(x=>$(x).classList.add("hidden"));
   if(pdfDocument){
     $("magnifierCanvas").classList.remove("hidden");
-    await renderPdfPage(currentPage,$("magnifierCanvas"));
+    await renderPdfPage(currentPage,$("magnifierCanvas"),"magnifier");
     applyZoom();
   } else if(selectedAttachment.kind==="image" || /\.(png|jpe?g|gif|webp)$/i.test(selectedAttachment.url)){
     $("magnifierImage").src=selectedAttachment.url;
@@ -215,13 +226,20 @@ async function openMagnifier(){
   updatePageLabels();
 }
 
-function applyZoom(){
+async function applyZoom(){
   $("zoomLabel").textContent=Math.round(zoom*100)+"%";
-  $("magnifierCanvas").style.transform=`scale(${zoom})`;
-  $("magnifierImage").style.transform=`scale(${zoom})`;
+  // PDF pages are re-rendered at the requested zoom so the canvas gets more pixels.
+  if(pdfDocument && selectedAttachment && !$("magnifierModal").classList.contains("hidden")){
+    await renderPdfPage(currentPage,$("magnifierCanvas"),"magnifier");
+  } else {
+    // Raster images cannot gain detail beyond their source resolution, but keep the
+    // browser's normal high-quality interpolation instead of pixel-art scaling.
+    $("magnifierImage").style.imageRendering="auto";
+    $("magnifierImage").style.transform=`scale(${zoom})`;
+  }
 }
-$("zoomIn").onclick=()=>{zoom=Math.min(3,zoom+.25);applyZoom()};
-$("zoomOut").onclick=()=>{zoom=Math.max(.5,zoom-.25);applyZoom()};
+$("zoomIn").onclick=async()=>{zoom=Math.min(3,zoom+.25);await applyZoom()};
+$("zoomOut").onclick=async()=>{zoom=Math.max(.5,zoom-.25);await applyZoom()};
 
 $("prevPage").onclick=()=>changePage(-1);
 $("nextPage").onclick=()=>changePage(1);
@@ -506,7 +524,11 @@ function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;",
 function escapeAttr(s){return escapeHtml(s)}
 
 window.addEventListener("resize",()=>{
-  if(pdfDocument && selectedAttachment) renderPdfPage(currentPage,$("pdfCanvas"));
+  if(pdfDocument && selectedAttachment){
+    renderPdfPage(currentPage,$("pdfCanvas"),"main");
+    if(!$("magnifierModal").classList.contains("hidden"))
+      renderPdfPage(currentPage,$("magnifierCanvas"),"magnifier");
+  }
 });
 
 loadEntries();
