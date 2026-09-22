@@ -11,8 +11,8 @@ import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
 
-const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL_HERE";
-const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+const SUPABASE_URL = "https://mriecntgwcksczyfbhfc.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_0U_DQ0kK8ccTjFY0E2Wc2A_WU_Z0q8B";
 const configured = !SUPABASE_URL.includes("PASTE_") && !SUPABASE_ANON_KEY.includes("PASTE_");
 const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -372,7 +372,7 @@ $("entryForm").onsubmit=async e=>{
     // Remove existing attachments that were removed from the editor.
     if(id){
       for(const a of existing){
-        if(!keepIds.includes(String(a.id)) && rows.some(r=>r.dataset.attachmentId) && !rows.some(r=>String(r.dataset.attachmentId)===String(a.id))){
+        if(!keepIds.includes(String(a.id))){
           await supabase.from("attachments").delete().eq("id",a.id);
           if(a.storage_path) await supabase.storage.from("attachments").remove([a.storage_path]);
         }
