@@ -9,12 +9,17 @@
 <body>
   <div id="app" class="app-shell">
     <aside class="sidebar">
+      <nav class="sidebar-page-nav" aria-label="Portal navigation">
+        <a class="page-nav-btn active" href="index.html">⌂ <span>Home</span></a>
+        <a class="page-nav-btn" href="tutorials.html">▶ <span>Video Tutorials</span></a>
+      </nav>
+
       <div class="brand">
-        <img
-          class="brand-banner"
-          src="crp-banner.png"
-          alt="CRP — Claims Reference Portal"
-        >
+        <div class="brand-mark">CR</div>
+        <div>
+          <div class="brand-title">Claims Reference</div>
+          <div class="brand-subtitle">Reference Portal</div>
+        </div>
       </div>
 
       <div class="search-wrap">
@@ -58,6 +63,13 @@
             <div>DOCUMENT TYPE</div>
           </div>
           <div id="attachmentRows" class="attachment-rows"></div>
+
+          <section id="notesSection" class="notes-section hidden">
+            <div class="notes-heading">
+              <h3>Notes / Instructions</h3>
+            </div>
+            <div id="notesContent" class="notes-content"></div>
+          </section>
 
           <div id="emptyState" class="empty-state hidden">
             <div class="empty-icon">⌕</div>
@@ -146,6 +158,15 @@
             <div class="form-grid">
               <label>Code<input id="entryCode" required maxlength="50" placeholder="Enter code"></label>
               <label>Title<input id="entryTitle" required maxlength="160" placeholder="Enter reference title"></label>
+            </div>
+
+            <div class="notes-admin-field">
+              <label class="notes-admin-label">
+                Notes / Instructions
+                <span class="muted">Optional</span>
+              </label>
+              <div id="notesRows" class="notes-rows"></div>
+              <button id="addNoteRow" type="button" class="secondary-btn compact">＋ Add instruction</button>
             </div>
 
             <div class="section-title-row attachment-admin-heading">
