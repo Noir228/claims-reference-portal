@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claims Reference Portal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">CR</div>
+        <div>
+          <div class="brand-title">Claims Reference</div>
+          <div class="brand-subtitle">Reference Portal</div>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input id="searchInput" type="search" placeholder="Search codes or titles..." autocomplete="off">
+        <button id="clearSearch" class="icon-btn hidden" title="Clear search">×</button>
+      </div>
+
+      <div class="sidebar-heading">
+        <span>REFERENCE CODES</span>
+        <span id="entryCount" class="count-pill">0</span>
+      </div>
+      <div id="entryList" class="entry-list"></div>
+
+      <button id="adminButton" class="admin-login-btn">Administrator</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">REFERENCE DATABASE</div>
+          <h1 id="selectedCode">99460</h1>
+          <p id="selectedTitle">NEWBORN CARE PACKAGE</p>
+        </div>
+        <div class="top-actions">
+          <span id="connectionStatus" class="status-badge">Demo mode</span>
+        </div>
+      </header>
+
+      <section class="content-grid">
+        <section class="details-card">
+          <div class="card-heading">
+            <div>
+              <span class="eyebrow">DOCUMENT CHECKLIST</span>
+              <h2>Attachments &amp; Document Type</h2>
+            </div>
+          </div>
+
+          <div class="table-head">
+            <div>ATTACHMENTS</div>
+            <div>DOCUMENT TYPE</div>
+          </div>
+          <div id="attachmentRows" class="attachment-rows"></div>
+
+          <div id="emptyState" class="empty-state hidden">
+            <div class="empty-icon">⌕</div>
+            <h3>No matching reference</h3>
+            <p>Try a different code or title.</p>
+          </div>
+        </section>
+
+        <aside class="viewer-card">
+          <div class="viewer-header">
+            <div>
+              <span class="eyebrow">DOCUMENT PREVIEW</span>
+              <div id="viewerTitle" class="viewer-title">Select an attachment</div>
+            </div>
+            <button id="openMagnifier" class="magnifier-btn" title="Open document in a larger window">⌕</button>
+          </div>
+
+          <div id="viewerStage" class="viewer-stage">
+            <div id="viewerPlaceholder" class="viewer-placeholder">
+              <div class="doc-icon">▤</div>
+              <strong>No document selected</strong>
+              <span>Click an attachment on the left to preview it.</span>
+            </div>
+            <canvas id="pdfCanvas" class="pdf-canvas hidden"></canvas>
+            <img id="imageViewer" class="image-viewer hidden" alt="Document preview">
+            <iframe id="frameViewer" class="frame-viewer hidden" title="Document preview"></iframe>
+          </div>
+
+          <div class="viewer-footer">
+            <button id="prevPage" class="page-btn" title="Previous page">‹</button>
+            <span id="pageLabel">PAGE 1 OF 1</span>
+            <button id="nextPage" class="page-btn" title="Next page">›</button>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <!-- Login -->
+  <div id="loginModal" class="modal hidden">
+    <div class="modal-card small">
+      <button class="modal-close" data-close="loginModal">×</button>
+      <div class="eyebrow">SECURE AREA</div>
+      <h2>Administrator Login</h2>
+      <p class="muted">Only your authenticated administrator account can change the reference database.</p>
+      <form id="loginForm">
+        <label>Email<input id="loginEmail" type="email" required></label>
+        <label>Password<input id="loginPassword" type="password" required></label>
+        <button class="primary-btn" type="submit">Sign in</button>
+        <div id="loginError" class="form-error"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin -->
+  <div id="adminModal" class="modal hidden">
+    <div class="modal-card admin-card">
+      <button class="modal-close" data-close="adminModal">×</button>
+      <div class="admin-head">
+        <div>
+          <div class="eyebrow">ADMINISTRATION</div>
+          <h2>Reference Database Manager</h2>
+          <p class="muted">Add, edit or remove codes and their attachments. Visitors have read-only access.</p>
+        </div>
+        <button id="logoutButton" class="secondary-btn">Sign out</button>
+      </div>
+
+      <div class="admin-layout">
+        <section class="admin-section">
+          <div class="section-title-row">
+            <h3>Reference Codes</h3>
+            <button id="newEntryButton" class="primary-btn compact">＋ Add code</button>
+          </div>
+          <div id="adminEntryList" class="admin-entry-list"></div>
+        </section>
+
+        <section class="admin-section editor-section">
+          <div class="section-title-row">
+            <h3 id="editorHeading">Add a reference</h3>
+            <span id="editorHint" class="muted">Changes are saved to the database.</span>
+          </div>
+
+          <form id="entryForm">
+            <input id="editEntryId" type="hidden">
+            <div class="form-grid">
+              <label>Code<input id="entryCode" required maxlength="50" placeholder="99460"></label>
+              <label>Title<input id="entryTitle" required maxlength="160" placeholder="NEWBORN CARE PACKAGE"></label>
+            </div>
+
+            <div class="section-title-row attachment-admin-heading">
+              <h4>Attachments</h4>
+              <button id="addAttachmentRow" type="button" class="secondary-btn compact">＋ Add attachment</button>
+            </div>
+            <div id="adminAttachments" class="admin-attachments"></div>
+
+            <div class="form-actions">
+              <button type="button" id="deleteEntryButton" class="danger-btn hidden">Delete code</button>
+              <span></span>
+              <button type="button" id="cancelEditButton" class="secondary-btn">Cancel</button>
+              <button type="submit" class="primary-btn">Save changes</button>
+            </div>
+            <div id="saveError" class="form-error"></div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Magnifier -->
+  <div id="magnifierModal" class="modal viewer-modal hidden">
+    <div class="magnifier-card">
+      <div class="magnifier-toolbar">
+        <div>
+          <div class="eyebrow">DOCUMENT VIEWER</div>
+          <div id="magnifierTitle" class="magnifier-title">Document</div>
+        </div>
+        <div class="zoom-controls">
+          <button id="zoomOut" class="viewer-control">−</button>
+          <span id="zoomLabel">100%</span>
+          <button id="zoomIn" class="viewer-control">＋</button>
+          <button class="viewer-control close-viewer" data-close="magnifierModal">×</button>
+        </div>
+      </div>
+      <div id="magnifierStage" class="magnifier-stage">
+        <canvas id="magnifierCanvas" class="pdf-canvas"></canvas>
+        <img id="magnifierImage" class="image-viewer hidden" alt="Document">
+        <iframe id="magnifierFrame" class="frame-viewer hidden" title="Document"></iframe>
+      </div>
+      <div class="magnifier-footer">
+        <button id="magnifierPrev" class="page-btn">‹</button>
+        <span id="magnifierPageLabel">PAGE 1 OF 1</span>
+        <button id="magnifierNext" class="page-btn">›</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
