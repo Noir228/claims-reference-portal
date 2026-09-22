@@ -172,3 +172,32 @@ form input:focus{border-color:#57bfdc;box-shadow:0 0 0 3px rgba(8,167,223,.10)}
 .admin-attachment-row .a-type{width:100%;border:1px solid #ccd8de;border-radius:10px;padding:11px 12px;outline:none;background:#fff;color:#263840;font:inherit;appearance:auto}
 .admin-attachment-row .a-type:focus{border-color:#57bfdc;box-shadow:0 0 0 3px rgba(8,167,223,.10)}
 @media(max-width:700px){.document-type-add-row{grid-template-columns:1fr}.document-type-admin-row{grid-template-columns:1fr}.document-type-actions{justify-content:flex-end}}
+
+
+/* Global page navigation */
+.topbar{position:relative;padding-top:68px}
+.page-nav{position:absolute;left:24px;top:18px;display:flex;gap:8px;z-index:2}
+.page-nav-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid rgba(255,255,255,.45);border-radius:10px;background:rgba(255,255,255,.42);color:#12313c;text-decoration:none;font-size:12px;font-weight:800;box-shadow:0 3px 12px rgba(15,45,60,.06);backdrop-filter:blur(6px)}
+.page-nav-btn:hover{background:#fff;transform:translateY(-1px)}
+.page-nav-btn.active{background:#fff;color:#0789bb;border-color:#fff}
+@media(max-width:700px){.topbar{padding-top:65px}.page-nav{left:18px;top:15px}.page-nav-btn{padding:7px 10px}.page-nav-btn span{display:none}}
+
+/* Video Tutorials */
+.tutorial-shell{min-height:100vh;display:grid;grid-template-columns:300px 1fr}
+.tutorial-sidebar{background:linear-gradient(180deg,#079fd7 0%,#0798d0 100%);padding:20px 16px 16px;display:flex;flex-direction:column;min-height:100vh}
+.tutorial-list-heading{display:flex;justify-content:space-between;align-items:center;color:#fff;font-size:11px;font-weight:800;letter-spacing:.08em;margin:25px 5px 9px}
+.tutorial-list{overflow:auto;flex:1;padding:2px 0 14px;display:grid;align-content:start;gap:7px}
+.tutorial-button{width:100%;border:0;background:#fff;border-radius:13px;min-height:50px;padding:11px 13px;text-align:left;font-size:13px;font-weight:800;color:#16212a;transition:.16s;box-shadow:0 3px 0 rgba(0,0,0,.04)}
+.tutorial-button:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.10)}
+.tutorial-button.active{background:#a9e0ee;color:#07151c}
+.tutorial-main{padding:16px 28px 28px;min-width:0}
+.tutorial-topbar{max-width:1380px;margin:0 auto 12px;background:linear-gradient(110deg,#c8f0f8 0%,#8dd8e9 100%);border:1px solid #b5e4ee;border-radius:16px;box-shadow:var(--shadow);padding:68px 24px 22px;position:relative}
+.tutorial-topbar h1{font-size:36px;line-height:1;margin:0}.tutorial-topbar p{margin:8px 0 0;font-weight:600;color:#28434d}
+.tutorial-player-card{max-width:1380px;margin:auto;background:#fff;border:1px solid #d9e0e4;border-radius:16px;box-shadow:0 10px 35px rgba(15,45,60,.06);overflow:hidden}
+.tutorial-player-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:15px}
+.tutorial-current-title{font-size:16px;font-weight:800}.tutorial-player-wrap{background:#10191d;aspect-ratio:16/9;max-height:calc(100vh - 250px);display:grid;place-items:center}
+#tutorialVideo{width:100%;height:100%;object-fit:contain;background:#10191d}.tutorial-placeholder{color:#9eb2b9;text-align:center;display:flex;flex-direction:column;gap:8px}.tutorial-placeholder .doc-icon{font-size:48px}
+.tutorial-footer{padding:11px 16px;color:var(--muted);font-size:11px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.tutorial-admin-list{display:grid;gap:8px;margin-top:12px;max-height:45vh;overflow:auto}.tutorial-admin-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid #e0e7ea;border-radius:11px;padding:11px 12px}.tutorial-admin-row strong{font-size:13px}.tutorial-admin-row small{display:block;color:var(--muted);margin-top:3px}.tutorial-upload-box{border:1px solid var(--line);border-radius:15px;padding:16px;background:#fbfdfe}.tutorial-upload-box form{display:grid;gap:12px}.tutorial-upload-box input[type=file]{border:1px solid #ccd8de;border-radius:10px;padding:9px;background:#fff}.tutorial-upload-box input[type=file]:focus{border-color:#57bfdc;box-shadow:0 0 0 3px rgba(8,167,223,.10);outline:none}
+@media(max-width:1000px){.tutorial-shell{grid-template-columns:230px 1fr}}
+@media(max-width:700px){.tutorial-shell{display:block}.tutorial-sidebar{min-height:auto}.tutorial-list{display:flex;overflow:auto}.tutorial-button{min-width:180px}.tutorial-main{padding:10px}.tutorial-topbar{padding:65px 18px 18px}.tutorial-topbar h1{font-size:30px}.tutorial-player-head{padding:13px 15px}.tutorial-player-wrap{aspect-ratio:16/10}.tutorial-admin-row{grid-template-columns:1fr}.tutorial-admin-row .danger-btn{justify-self:end}}
