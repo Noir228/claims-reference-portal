@@ -96,9 +96,7 @@ function renderSelected(){
   $("selectedCode").textContent = selectedEntry.code;
   $("selectedTitle").textContent = selectedEntry.title;
 
-  const notes = String(selectedEntry.notes || "").trim();
-  $("notesContent").textContent = notes;
-  $("notesSection").classList.toggle("hidden", !notes);
+  renderNotes(selectedEntry.notes || "");
 
   const attachments = selectedEntry.attachments || [];
   $("attachmentRows").innerHTML = attachments.length ? attachments.map(a=>`
@@ -114,10 +112,32 @@ function showNoMatch(){
   $("selectedCode").textContent="—";
   $("selectedTitle").textContent="No matching reference";
   $("attachmentRows").innerHTML="";
-  $("notesContent").textContent="";
+  $("notesContent").innerHTML="";
   $("notesSection").classList.add("hidden");
   $("emptyState").classList.remove("hidden");
   resetViewer();
+}
+
+function renderNotes(notes){
+  const container=$("notesContent");
+  container.innerHTML="";
+  const lines=String(notes || "")
+    .split(/\r?\n/)
+    .map(line=>line.trim())
+    .filter(Boolean);
+
+  if(!lines.length){
+    $("notesSection").classList.add("hidden");
+    return;
+  }
+
+  lines.forEach(line=>{
+    const row=document.createElement("div");
+    row.className="note-line";
+    row.textContent=line;
+    container.appendChild(row);
+  });
+  $("notesSection").classList.remove("hidden");
 }
 function hideNoMatch(){ $("emptyState").classList.add("hidden"); }
 
@@ -305,13 +325,59 @@ function renderAdminList(){
   document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editEntry(b.dataset.edit));
 }
 
+function addNoteRow(value=""){
+  const container=$("notesRows");
+  const row=document.createElement("div");
+  row.className="note-row";
+
+  const input=document.createElement("input");
+  input.type="text";
+  input.className="note-input";
+  input.maxLength=500;
+  input.placeholder="Enter instruction...";
+  input.value=value;
+
+  const remove=document.createElement("button");
+  remove.type="button";
+  remove.className="remove-note";
+  remove.title="Remove instruction";
+  remove.textContent="×";
+  remove.onclick=()=>row.remove();
+
+  row.appendChild(input);
+  row.appendChild(remove);
+  container.appendChild(row);
+}
+
+function setNotes(notes){
+  const container=$("notesRows");
+  container.innerHTML="";
+  const lines=String(notes || "")
+    .split(/\r?\n/)
+    .map(line=>line.trim())
+    .filter(Boolean);
+
+  if(lines.length) lines.forEach(line=>addNoteRow(line));
+  else addNoteRow();
+}
+
+function getNotes(){
+  return [...document.querySelectorAll("#notesRows .note-input")]
+    .map(input=>input.value.trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
+$("addNoteRow").onclick=()=>addNoteRow();
+
 function startNewEntry(){
   $("editorHeading").textContent="Add a reference";
   $("editorHint").textContent="Create a new code and attach documents.";
   $("editEntryId").value="";
   $("entryCode").value="";
   $("entryTitle").value="";
-  $("entryNotes").value="";
+  $("notesRows").innerHTML="";
+  addNoteRow();
   $("deleteEntryButton").classList.add("hidden");
   $("adminAttachments").innerHTML="";
   addAttachmentRow();
@@ -326,7 +392,7 @@ function editEntry(id){
   $("editEntryId").value=e.id;
   $("entryCode").value=e.code;
   $("entryTitle").value=e.title;
-  $("entryNotes").value=e.notes || "";
+  setNotes(e.notes || "");
   $("deleteEntryButton").classList.remove("hidden");
   $("adminAttachments").innerHTML="";
   (e.attachments||[]).forEach(a=>{
@@ -441,7 +507,7 @@ $("entryForm").onsubmit=async e=>{
   const payload={
     code:$("entryCode").value.trim(),
     title:$("entryTitle").value.trim(),
-    notes:$("entryNotes").value.trim()
+    notes:getNotes()
   };
   if(!payload.code||!payload.title){$("saveError").textContent="Code and title are required.";return}
   try{
