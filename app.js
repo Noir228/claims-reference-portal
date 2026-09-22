@@ -300,8 +300,8 @@ function addAttachmentRow(a=null){
   const row=document.createElement("div");
   row.className="admin-attachment-row";
   row.innerHTML=`
-    <label>Attachment label<input class="a-label" required value="${escapeAttr(a?.label||"")}" placeholder="CF2"></label>
-    <label>Document type<input class="a-type" value="${escapeAttr(a?.type||"")}" placeholder="CF2"></label>
+    <label>Attachment label<input class="a-label" required value="${escapeAttr(a?.label||"")}" placeholder=""></label>
+    <label>Document type<input class="a-type" value="${escapeAttr(a?.type||"")}" placeholder=""></label>
     <button type="button" class="remove-row" title="Remove attachment">×</button>
     <label class="file-field">File ${a?.url?`<small class="muted">Current file: ${escapeHtml(a.file_name||"uploaded document")}</small>`:""}
       <input class="a-file" type="file" accept=".pdf,image/*">
