@@ -97,7 +97,7 @@ function renderSelected(){
   $("selectedTitle").textContent = selectedEntry.title;
   renderPdx(selectedEntry.pdx || "");
   renderSdx(selectedEntry.sdx || "");
-  renderSubmissionType(selectedEntry.submission_type || "Direct Submit");
+  renderSubmissionType(selectedEntry.submission_type || "");
 
   renderNotes(selectedEntry.notes || "");
 
@@ -406,7 +406,7 @@ function getNotes(){
 $("addNoteRow").onclick=()=>addNoteRow();
 
 function setSubmissionType(type){
-  const value=type === "For CF4" ? "For CF4" : "Direct Submit";
+  const value=type === "For CF4" ? "For CF4" : type === "Direct Submit" ? "Direct Submit" : "";
   document.querySelectorAll("#submissionToggle .submission-option").forEach(btn=>{
     const active=btn.dataset.submission===value;
     btn.classList.toggle("active", active);
@@ -416,7 +416,7 @@ function setSubmissionType(type){
 
 function getSubmissionType(){
   const active=document.querySelector("#submissionToggle .submission-option.active");
-  return active?.dataset.submission || "Direct Submit";
+  return active?.dataset.submission || "";
 }
 
 document.querySelectorAll("#submissionToggle .submission-option").forEach(btn=>{
@@ -431,7 +431,7 @@ function startNewEntry(){
   $("entryTitle").value="";
   $("entryPdx").value="";
   $("entrySdx").value="";
-  setSubmissionType("Direct Submit");
+  setSubmissionType("");
   $("notesRows").innerHTML="";
   addNoteRow();
   $("deleteEntryButton").classList.add("hidden");
@@ -450,7 +450,7 @@ function editEntry(id){
   $("entryTitle").value=e.title;
   $("entryPdx").value=e.pdx || "";
   $("entrySdx").value=e.sdx || "";
-  setSubmissionType(e.submission_type || "Direct Submit");
+  setSubmissionType(e.submission_type || "");
   setNotes(e.notes || "");
   $("deleteEntryButton").classList.remove("hidden");
   $("adminAttachments").innerHTML="";
