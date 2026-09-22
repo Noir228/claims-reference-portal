@@ -155,11 +155,14 @@
               <label>Title<input id="entryTitle" required maxlength="160" placeholder="Enter reference title"></label>
             </div>
 
-            <label class="notes-admin-field">
-              Notes / Instructions
-              <span class="muted">Optional</span>
-              <textarea id="entryNotes" maxlength="3000" rows="5" placeholder="Enter notes or instructions for this reference..."></textarea>
-            </label>
+            <div class="notes-admin-field">
+              <label class="notes-admin-label">
+                Notes / Instructions
+                <span class="muted">Optional</span>
+              </label>
+              <div id="notesRows" class="notes-rows"></div>
+              <button id="addNoteRow" type="button" class="secondary-btn compact">＋ Add instruction</button>
+            </div>
 
             <div class="section-title-row attachment-admin-heading">
               <h4>Attachments</h4>
