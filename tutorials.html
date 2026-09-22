@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Video Tutorials — Claims Reference Portal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="tutorial-shell">
+    <aside class="tutorial-sidebar">
+      <div class="brand">
+        <div class="brand-mark">CR</div>
+        <div><div class="brand-title">Claims Reference</div><div class="brand-subtitle">Reference Portal</div></div>
+      </div>
+
+      <div class="tutorial-list-heading">
+        <span>VIDEO TUTORIALS</span><span id="tutorialCount" class="count-pill">0</span>
+      </div>
+      <div id="tutorialList" class="tutorial-list"></div>
+      <button id="adminButton" class="admin-login-btn">Administrator</button>
+    </aside>
+
+    <main class="tutorial-main">
+      <header class="tutorial-topbar">
+        <nav class="page-nav">
+          <a class="page-nav-btn" href="index.html">⌂ <span>Home</span></a>
+          <a class="page-nav-btn active" href="tutorials.html">▶ <span>Video Tutorials</span></a>
+        </nav>
+        <div class="eyebrow">LEARNING CENTER</div>
+        <h1>Video Tutorials</h1>
+        <p>Step-by-step guides for Claims Reference Portal workflows.</p>
+        <span id="connectionStatus" class="status-badge tutorial-status">Connecting...</span>
+      </header>
+
+      <section class="tutorial-player-card">
+        <div class="tutorial-player-head">
+          <div>
+            <span class="eyebrow">VIDEO TUTORIAL</span>
+            <div id="tutorialCurrentTitle" class="tutorial-current-title">Select a tutorial</div>
+          </div>
+        </div>
+        <div class="tutorial-player-wrap">
+          <div id="tutorialPlaceholder" class="tutorial-placeholder">
+            <div class="doc-icon">▶</div>
+            <strong>No tutorial selected</strong>
+            <span>Select a video from the list on the left.</span>
+          </div>
+          <video id="tutorialVideo" class="hidden" controls playsinline preload="metadata"></video>
+        </div>
+        <div class="tutorial-footer">
+          <span id="tutorialFileName">Choose a tutorial to begin.</span>
+          <span>Video controls are available in the player.</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="loginModal" class="modal hidden">
+    <div class="modal-card small">
+      <button class="modal-close" data-close="loginModal">×</button>
+      <div class="eyebrow">SECURE AREA</div>
+      <h2>Administrator Login</h2>
+      <p class="muted">Sign in with your authorized administrator account to manage video tutorials.</p>
+      <form id="loginForm">
+        <label>Email<input id="loginEmail" type="email" required></label>
+        <label>Password<input id="loginPassword" type="password" required></label>
+        <button class="primary-btn" type="submit">Sign in</button>
+        <div id="loginError" class="form-error"></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="adminModal" class="modal hidden">
+    <div class="modal-card admin-card">
+      <button class="modal-close" data-close="adminModal">×</button>
+      <div class="admin-head">
+        <div>
+          <div class="eyebrow">ADMINISTRATION</div>
+          <h2>Video Tutorial Manager</h2>
+          <p class="muted">Upload tutorial videos, give them titles, or remove videos that are no longer needed.</p>
+        </div>
+        <button id="logoutButton" class="secondary-btn">Sign out</button>
+      </div>
+
+      <div class="admin-layout">
+        <section class="admin-section">
+          <div class="section-title-row"><h3>Uploaded Videos</h3><span id="adminVideoCount" class="count-pill">0</span></div>
+          <div id="adminTutorialList" class="tutorial-admin-list"></div>
+        </section>
+
+        <section class="admin-section editor-section">
+          <div class="section-title-row"><h3>Upload a tutorial</h3></div>
+          <div class="tutorial-upload-box">
+            <form id="videoForm">
+              <label>Video title<input id="videoTitle" type="text" maxlength="160" required placeholder="Enter tutorial title"></label>
+              <label>Video file<input id="videoFile" type="file" accept="video/*" required></label>
+              <button id="uploadVideoButton" type="submit" class="primary-btn">Upload video</button>
+              <div id="videoUploadError" class="form-error"></div>
+            </form>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="tutorials.js"></script>
+</body>
+</html>
