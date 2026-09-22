@@ -101,6 +101,7 @@ function renderSelected(){
   if(!selectedEntry) return;
   $("selectedCode").textContent = selectedEntry.code;
   $("selectedTitle").textContent = selectedEntry.title;
+  $("notesContent").textContent = selectedEntry.notes?.trim() || "No notes or instructions added.";
   const attachments = selectedEntry.attachments || [];
   $("attachmentRows").innerHTML = attachments.length ? attachments.map(a=>`
     <div class="attachment-row">
@@ -115,6 +116,7 @@ function showNoMatch(){
   $("selectedCode").textContent="—";
   $("selectedTitle").textContent="No matching reference";
   $("attachmentRows").innerHTML="";
+  $("notesContent").textContent="No notes or instructions added.";
   $("emptyState").classList.remove("hidden");
   resetViewer();
 }
@@ -165,20 +167,33 @@ async function loadPdf(url, canvas){
   updatePageLabels();
 }
 
-async function renderPdfPage(pageNum, canvas){
+async function renderPdfPage(pageNum, canvas, options={}){
   if(!pdfDocument) return;
   const page=await pdfDocument.getPage(pageNum);
   const base=page.getViewport({scale:1});
-  const maxWidth=Math.max(320, $("viewerStage").clientWidth-30);
-  const scale=Math.min(1.55, maxWidth/base.width);
-  const viewport=page.getViewport({scale});
-  const dpr=window.devicePixelRatio || 1;
-  canvas.width=viewport.width*dpr;
-  canvas.height=viewport.height*dpr;
+  const isMagnifier=options.magnifier===true;
+  const stage=$(isMagnifier ? "magnifierStage" : "viewerStage");
+  const maxWidth=Math.max(320, stage.clientWidth-(isMagnifier ? 70 : 30));
+  const maxHeight=Math.max(320, stage.clientHeight-(isMagnifier ? 70 : 30));
+  const fitScale=Math.min(maxWidth/base.width, maxHeight/base.height);
+  const baseScale=Math.min(isMagnifier ? 2.5 : 1.55, Math.max(.25, fitScale));
+  const requestedZoom=isMagnifier ? zoom : 1;
+  // Render the PDF at the requested zoom instead of enlarging an already-rendered canvas.
+  // This keeps text and lines sharp when the user zooms in.
+  const cssScale=baseScale*requestedZoom;
+  const dpr=Math.min(3, window.devicePixelRatio || 1);
+  const viewport=page.getViewport({scale:cssScale});
+  const renderViewport=page.getViewport({scale:cssScale*dpr});
+  canvas.width=Math.ceil(renderViewport.width);
+  canvas.height=Math.ceil(renderViewport.height);
   canvas.style.width=viewport.width+"px";
   canvas.style.height=viewport.height+"px";
-  const ctx=canvas.getContext("2d");
-  await page.render({canvasContext:ctx,viewport:page.getViewport({scale:scale*dpr})}).promise;
+  canvas.style.transform="none";
+  const ctx=canvas.getContext("2d", {alpha:false});
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle="#fff";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  await page.render({canvasContext:ctx,viewport:renderViewport}).promise;
 }
 
 function updatePageLabels(){
@@ -196,7 +211,7 @@ async function changePage(delta){
   currentPage=Math.min(totalPages,Math.max(1,currentPage+delta));
   if(pdfDocument) await renderPdfPage(currentPage,$("pdfCanvas"));
   if($("magnifierModal").classList.contains("hidden")===false && pdfDocument)
-    await renderPdfPage(currentPage,$("magnifierCanvas"));
+    await renderPdfPage(currentPage,$("magnifierCanvas"),{magnifier:true});
   updatePageLabels();
 }
 
@@ -208,8 +223,8 @@ async function openMagnifier(){
   ["magnifierCanvas","magnifierImage","magnifierFrame"].forEach(x=>$(x).classList.add("hidden"));
   if(pdfDocument){
     $("magnifierCanvas").classList.remove("hidden");
-    await renderPdfPage(currentPage,$("magnifierCanvas"));
-    applyZoom();
+    await renderPdfPage(currentPage,$("magnifierCanvas"),{magnifier:true});
+    $("zoomLabel").textContent="100%";
   } else if(selectedAttachment.kind==="image" || /\.(png|jpe?g|gif|webp)$/i.test(selectedAttachment.url)){
     $("magnifierImage").src=selectedAttachment.url;
     $("magnifierImage").classList.remove("hidden");
@@ -226,8 +241,17 @@ function applyZoom(){
   $("magnifierCanvas").style.transform=`scale(${zoom})`;
   $("magnifierImage").style.transform=`scale(${zoom})`;
 }
-$("zoomIn").onclick=()=>{zoom=Math.min(3,zoom+.25);applyZoom()};
-$("zoomOut").onclick=()=>{zoom=Math.max(.5,zoom-.25);applyZoom()};
+async function setZoom(nextZoom){
+  zoom=Math.min(3,Math.max(.5,nextZoom));
+  $("zoomLabel").textContent=Math.round(zoom*100)+"%";
+  if(pdfDocument && $("magnifierModal").classList.contains("hidden")===false){
+    await renderPdfPage(currentPage,$("magnifierCanvas"),{magnifier:true});
+  } else {
+    applyZoom();
+  }
+}
+$("zoomIn").onclick=()=>setZoom(zoom+.25);
+$("zoomOut").onclick=()=>setZoom(zoom-.25);
 
 $("prevPage").onclick=()=>changePage(-1);
 $("nextPage").onclick=()=>changePage(1);
@@ -289,6 +313,7 @@ function startNewEntry(){
   $("editEntryId").value="";
   $("entryCode").value="";
   $("entryTitle").value="";
+  $("entryNotes").value="";
   $("deleteEntryButton").classList.add("hidden");
   $("adminAttachments").innerHTML="";
   addAttachmentRow();
@@ -303,6 +328,7 @@ function editEntry(id){
   $("editEntryId").value=e.id;
   $("entryCode").value=e.code;
   $("entryTitle").value=e.title;
+  $("entryNotes").value=e.notes || "";
   $("deleteEntryButton").classList.remove("hidden");
   $("adminAttachments").innerHTML="";
   (e.attachments||[]).forEach(a=>{
@@ -329,13 +355,35 @@ function addAttachmentRow(a=null){
 }
 $("addAttachmentRow").onclick=()=>addAttachmentRow();
 
+function addStandardNewbornAttachments(){
+  const standard=[
+    ["CF2","CF2"],
+    ["CSF","CSF"],
+    ["PBEF","PBEF"],
+    ["PMRF","PMRF"],
+    ["BCNEWBORN","PATIENT'S BIRTH CERTIFICATE"],
+    ["HEARING TEST","DIAGNOSTIC TEST RESULT"]
+  ];
+  const existing=[...document.querySelectorAll("#adminAttachments .admin-attachment-row")].map(row=>
+    row.querySelector(".a-label")?.value.trim().toUpperCase()
+  );
+  for(const [label,type] of standard){
+    if(!existing.includes(label.toUpperCase())) addAttachmentRow({label,type});
+  }
+}
+$("standardNewbornAttachments").onclick=addStandardNewbornAttachments;
+
 $("entryForm").onsubmit=async e=>{
   e.preventDefault();
   $("saveError").textContent="";
   if(!configured){$("saveError").textContent="Configure Supabase first. Demo mode does not save changes.";return}
   if(!isAdmin)return;
   const id=$("editEntryId").value;
-  const payload={code:$("entryCode").value.trim(),title:$("entryTitle").value.trim()};
+  const payload={
+    code:$("entryCode").value.trim(),
+    title:$("entryTitle").value.trim(),
+    notes:$("entryNotes").value.trim()
+  };
   if(!payload.code||!payload.title){$("saveError").textContent="Code and title are required.";return}
   try{
     let entryId=id;
