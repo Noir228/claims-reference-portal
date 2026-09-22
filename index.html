@@ -59,6 +59,14 @@
           </div>
           <div id="attachmentRows" class="attachment-rows"></div>
 
+          <section id="notesSection" class="notes-section hidden">
+            <div class="notes-heading">
+              <span class="eyebrow">NOTES / INSTRUCTIONS</span>
+              <h3>Notes / Instructions</h3>
+            </div>
+            <div id="notesContent" class="notes-content"></div>
+          </section>
+
           <div id="emptyState" class="empty-state hidden">
             <div class="empty-icon">⌕</div>
             <h3>No matching reference</h3>
@@ -147,6 +155,12 @@
               <label>Code<input id="entryCode" required maxlength="50" placeholder="Enter code"></label>
               <label>Title<input id="entryTitle" required maxlength="160" placeholder="Enter reference title"></label>
             </div>
+
+            <label class="notes-admin-field">
+              Notes / Instructions
+              <span class="muted">Optional</span>
+              <textarea id="entryNotes" maxlength="3000" rows="5" placeholder="Enter notes or instructions for this reference..."></textarea>
+            </label>
 
             <div class="section-title-row attachment-admin-heading">
               <h4>Attachments</h4>
