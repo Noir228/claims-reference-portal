@@ -111,3 +111,53 @@ using (bucket_id = 'attachments' and public.is_admin());
 -- After creating your admin user in Supabase Authentication,
 -- run this with that user's UUID:
 -- insert into public.profiles (id, is_admin) values ('YOUR-USER-UUID-HERE', true);
+
+
+-- Video Tutorials
+create table if not exists public.tutorial_videos (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  storage_path text not null,
+  url text not null,
+  file_name text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.tutorial_videos enable row level security;
+
+create policy "Public can read tutorial videos"
+on public.tutorial_videos for select using (true);
+
+create policy "Admins can insert tutorial videos"
+on public.tutorial_videos for insert to authenticated
+with check (public.is_admin());
+
+create policy "Admins can update tutorial videos"
+on public.tutorial_videos for update to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+create policy "Admins can delete tutorial videos"
+on public.tutorial_videos for delete to authenticated
+using (public.is_admin());
+
+insert into storage.buckets (id, name, public)
+values ('tutorial-videos', 'tutorial-videos', true)
+on conflict (id) do update set public = true;
+
+create policy "Public can view tutorial video files"
+on storage.objects for select
+using (bucket_id = 'tutorial-videos');
+
+create policy "Admins can upload tutorial video files"
+on storage.objects for insert to authenticated
+with check (bucket_id = 'tutorial-videos' and public.is_admin());
+
+create policy "Admins can update tutorial video files"
+on storage.objects for update to authenticated
+using (bucket_id = 'tutorial-videos' and public.is_admin())
+with check (bucket_id = 'tutorial-videos' and public.is_admin());
+
+create policy "Admins can delete tutorial video files"
+on storage.objects for delete to authenticated
+using (bucket_id = 'tutorial-videos' and public.is_admin());
