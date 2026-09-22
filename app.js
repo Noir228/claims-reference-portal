@@ -95,6 +95,7 @@ function renderSelected(){
   if(!selectedEntry) return;
   $("selectedCode").textContent = selectedEntry.code;
   $("selectedTitle").textContent = selectedEntry.title;
+  renderPdx(selectedEntry.pdx || "");
 
   renderNotes(selectedEntry.notes || "");
 
@@ -111,11 +112,21 @@ function showNoMatch(){
   selectedEntry=null;
   $("selectedCode").textContent="—";
   $("selectedTitle").textContent="No matching reference";
+  renderPdx("");
   $("attachmentRows").innerHTML="";
   $("notesContent").innerHTML="";
   $("notesSection").classList.add("hidden");
   $("emptyState").classList.remove("hidden");
   resetViewer();
+}
+
+function renderPdx(pdx){
+  const badge=$("selectedPdx");
+  if(!badge)return;
+  const value=String(pdx || "").trim();
+  badge.classList.toggle("hidden", !value);
+  const strong=badge.querySelector("strong");
+  if(strong) strong.textContent=value;
 }
 
 function renderNotes(notes){
@@ -376,6 +387,7 @@ function startNewEntry(){
   $("editEntryId").value="";
   $("entryCode").value="";
   $("entryTitle").value="";
+  $("entryPdx").value="";
   $("notesRows").innerHTML="";
   addNoteRow();
   $("deleteEntryButton").classList.add("hidden");
@@ -392,6 +404,7 @@ function editEntry(id){
   $("editEntryId").value=e.id;
   $("entryCode").value=e.code;
   $("entryTitle").value=e.title;
+  $("entryPdx").value=e.pdx || "";
   setNotes(e.notes || "");
   $("deleteEntryButton").classList.remove("hidden");
   $("adminAttachments").innerHTML="";
@@ -507,6 +520,7 @@ $("entryForm").onsubmit=async e=>{
   const payload={
     code:$("entryCode").value.trim(),
     title:$("entryTitle").value.trim(),
+    pdx:$("entryPdx").value.trim(),
     notes:getNotes()
   };
   if(!payload.code||!payload.title){$("saveError").textContent="Code and title are required.";return}
