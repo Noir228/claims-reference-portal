@@ -45,6 +45,7 @@ create table if not exists public.attachments (
   kind text not null default 'pdf',
   file_name text,
   storage_path text,
+  important boolean not null default false,
   created_at timestamptz not null default now()
 );
 
