@@ -36,11 +36,11 @@
       <header class="topbar">
         <div>
           <div class="eyebrow">REFERENCE DATABASE</div>
-          <h1 id="selectedCode">99460</h1>
-          <p id="selectedTitle">NEWBORN CARE PACKAGE</p>
+          <h1 id="selectedCode">—</h1>
+          <p id="selectedTitle">Select a reference</p>
         </div>
         <div class="top-actions">
-          <span id="connectionStatus" class="status-badge">Demo mode</span>
+          <span id="connectionStatus" class="status-badge">Connecting...</span>
         </div>
       </header>
 
@@ -58,16 +58,6 @@
             <div>DOCUMENT TYPE</div>
           </div>
           <div id="attachmentRows" class="attachment-rows"></div>
-
-          <section class="notes-section">
-            <div class="notes-heading">
-              <div>
-                <span class="eyebrow">REFERENCE NOTES</span>
-                <h3>Notes / Instructions</h3>
-              </div>
-            </div>
-            <div id="notesContent" class="notes-content">No notes or instructions added.</div>
-          </section>
 
           <div id="emptyState" class="empty-state hidden">
             <div class="empty-icon">⌕</div>
@@ -153,19 +143,13 @@
           <form id="entryForm">
             <input id="editEntryId" type="hidden">
             <div class="form-grid">
-              <label>Code<input id="entryCode" required maxlength="50" placeholder="99460"></label>
-              <label>Title<input id="entryTitle" required maxlength="160" placeholder="NEWBORN CARE PACKAGE"></label>
-              <label class="notes-field">Notes / Instructions<textarea id="entryNotes" rows="5" maxlength="5000" placeholder="Add notes, reminders, encoding instructions, or other important information..."></textarea></label>
+              <label>Code<input id="entryCode" required maxlength="50" placeholder="Enter code"></label>
+              <label>Title<input id="entryTitle" required maxlength="160" placeholder="Enter reference title"></label>
             </div>
 
             <div class="section-title-row attachment-admin-heading">
               <h4>Attachments</h4>
-              <div class="attachment-actions">
-                <button id="addAttachmentRow" type="button" class="secondary-btn compact">＋ Add attachment</button>
-              </div>
-            </div>
-            <div class="admin-attachment-head">
-              <span>ATTACHMENT</span><span>DOCUMENT TYPE</span><span>FILE</span><span>ACTION</span>
+              <button id="addAttachmentRow" type="button" class="secondary-btn compact">＋ Add attachment</button>
             </div>
             <div id="adminAttachments" class="admin-attachments"></div>
 
@@ -211,6 +195,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="app-v9.js?v=1"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
