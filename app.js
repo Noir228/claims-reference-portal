@@ -18,6 +18,7 @@ const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : nu
 
 
 let entries = [];
+let documentTypes = [];
 let selectedEntry = null;
 let selectedAttachment = null;
 let currentPage = 1;
