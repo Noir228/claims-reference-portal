@@ -96,6 +96,8 @@ function renderSelected(){
   $("selectedCode").textContent = selectedEntry.code;
   $("selectedTitle").textContent = selectedEntry.title;
   renderPdx(selectedEntry.pdx || "");
+  renderSdx(selectedEntry.sdx || "");
+  renderSubmissionType(selectedEntry.submission_type || "Direct Submit");
 
   renderNotes(selectedEntry.notes || "");
 
@@ -113,6 +115,8 @@ function showNoMatch(){
   $("selectedCode").textContent="—";
   $("selectedTitle").textContent="No matching reference";
   renderPdx("");
+  renderSdx("");
+  renderSubmissionType("");
   $("attachmentRows").innerHTML="";
   $("notesContent").innerHTML="";
   $("notesSection").classList.add("hidden");
@@ -125,6 +129,26 @@ function renderPdx(pdx){
   if(!badge)return;
   const value=String(pdx || "").trim();
   badge.classList.toggle("hidden", !value);
+  const strong=badge.querySelector("strong");
+  if(strong) strong.textContent=value;
+}
+
+function renderSdx(sdx){
+  const badge=$("selectedSdx");
+  if(!badge)return;
+  const value=String(sdx || "").trim();
+  badge.classList.toggle("hidden", !value);
+  const strong=badge.querySelector("strong");
+  if(strong) strong.textContent=value;
+}
+
+function renderSubmissionType(type){
+  const badge=$("selectedSubmissionType");
+  if(!badge)return;
+  const value=String(type || "").trim();
+  badge.classList.toggle("hidden", !value);
+  badge.classList.toggle("direct", value === "Direct Submit");
+  badge.classList.toggle("cf4", value === "For CF4");
   const strong=badge.querySelector("strong");
   if(strong) strong.textContent=value;
 }
@@ -381,6 +405,24 @@ function getNotes(){
 
 $("addNoteRow").onclick=()=>addNoteRow();
 
+function setSubmissionType(type){
+  const value=type === "For CF4" ? "For CF4" : "Direct Submit";
+  document.querySelectorAll("#submissionToggle .submission-option").forEach(btn=>{
+    const active=btn.dataset.submission===value;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+}
+
+function getSubmissionType(){
+  const active=document.querySelector("#submissionToggle .submission-option.active");
+  return active?.dataset.submission || "Direct Submit";
+}
+
+document.querySelectorAll("#submissionToggle .submission-option").forEach(btn=>{
+  btn.onclick=()=>setSubmissionType(btn.dataset.submission);
+});
+
 function startNewEntry(){
   $("editorHeading").textContent="Add a reference";
   $("editorHint").textContent="Create a new code and attach documents.";
@@ -388,6 +430,8 @@ function startNewEntry(){
   $("entryCode").value="";
   $("entryTitle").value="";
   $("entryPdx").value="";
+  $("entrySdx").value="";
+  setSubmissionType("Direct Submit");
   $("notesRows").innerHTML="";
   addNoteRow();
   $("deleteEntryButton").classList.add("hidden");
@@ -405,6 +449,8 @@ function editEntry(id){
   $("entryCode").value=e.code;
   $("entryTitle").value=e.title;
   $("entryPdx").value=e.pdx || "";
+  $("entrySdx").value=e.sdx || "";
+  setSubmissionType(e.submission_type || "Direct Submit");
   setNotes(e.notes || "");
   $("deleteEntryButton").classList.remove("hidden");
   $("adminAttachments").innerHTML="";
@@ -521,6 +567,8 @@ $("entryForm").onsubmit=async e=>{
     code:$("entryCode").value.trim(),
     title:$("entryTitle").value.trim(),
     pdx:$("entryPdx").value.trim(),
+    sdx:$("entrySdx").value.trim(),
+    submission_type:getSubmissionType(),
     notes:getNotes()
   };
   if(!payload.code||!payload.title){$("saveError").textContent="Code and title are required.";return}
